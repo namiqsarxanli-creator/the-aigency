@@ -1,0 +1,49 @@
+{% extends "base.html" %}{% block title %}Təsdiq Mərkəzi · The Aigency{% endblock %}{% block content %}
+<link rel="stylesheet" href="/static/approvals-nexum.css?v=20260905-2">
+<section class="nx-approvals">
+  <video class="nx-bg" data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260803_192301_9231ed6b-c55c-4a48-909c-4ebe11cf2e11.mp4" autoplay loop muted playsinline preload="none"></video>
+  <div class="nx-content">
+    <nav class="nx-nav" aria-label="Təsdiq mərkəzi naviqasiyası">
+      <a class="nx-brand" href="/approvals"><svg viewBox="0 0 256 256" aria-hidden="true"><path d="M 128 128 C 128 198.692 70.692 256 0 256 C 0 185.308 57.308 128 128 128 Z M 128 128 C 198.692 128 256 185.308 256 256 C 185.308 256 128 198.692 128 128 Z M 0 0 C 70.692 0 128 57.308 128 128 C 57.308 128 0 70.692 0 0 Z M 256 0 C 256 70.692 198.692 128 128 128 C 128 57.308 185.308 0 256 0 Z"/></svg><span>decision</span></a>
+      <div class="nx-nav-pill"><a href="#reviewQueue">Növbə</a><a href="/campaigns">Kampaniyalar</a><a href="/content-studio">Studio+</a><a href="/control-room">Control Room</a></div>
+      <a class="nx-dark-pill" href="/#briefRoom">Yeni layihə</a>
+    </nav>
+
+    <main class="nx-main">
+      <div class="nx-copy">
+        <p class="nx-kicker">HUMAN DECISION LAYER</p>
+        <h1>İşi yoxla.<br>Qərarı sən ver.</h1>
+        <p class="nx-lede">Hazır nəticələri fabrikdən çıxmazdan əvvəl yoxlayın. Buradakı heç bir əməliyyat müştəriyə mesaj göndərmir.</p>
+        <div class="nx-copy-actions"><a href="#reviewQueue">Növbəni aç</a><a href="/campaigns">Kampaniyalara bax</a></div>
+      </div>
+
+      <div class="nx-cards">
+        <aside class="nx-stat-card">
+          <span>Qərar gözləyir</span><b>{{ approval_rows|length }}</b>
+          <p>Hazır layihə daxili insan yoxlamasında saxlanılır.</p>
+          <div class="nx-stat-line"><i style="--fill:{{ [approval_rows|length * 12, 100]|min }}%"></i></div>
+        </aside>
+
+        <section class="nx-review-card" id="reviewQueue">
+          <header><div><span>TƏSDİQ NÖVBƏSİ</span><b>{{ approval_rows|length }} layihə</b></div><i></i></header>
+          <div class="nx-review-list">
+          {% for row in approval_rows %}
+            <article class="nx-review-item" data-project="{{ row.project.id }}">
+              <div class="nx-meta"><span>LAYİHƏ #{{ row.project.id }}</span><time class="{% if row.age_hours >= 24 %}is-late{% endif %}">{{ row.age_hours }} SAAT</time></div>
+              <h2>{{ row.project.brief[:90] }}</h2>
+              <p>{{ row.project.brief }}</p>
+              <details><summary>Nəticə xülasəsini aç <i>⌄</i></summary><div>{{ row.preview|striptags }}</div></details>
+              <div class="nx-actions"><form method="post" action="/approvals/{{ row.project.id }}/approve"><button class="nx-primary" type="submit">Daxili təsdiq et</button></form><a href="/s/{{ row.project.share_token }}" target="_blank" rel="noopener">Nəticəyə bax</a></div>
+              <form class="nx-reject" method="post" action="/approvals/{{ row.project.id }}/reject"><input name="reason" required maxlength="500" placeholder="Yenidən işləmə səbəbi"><button type="submit">Rədd et</button></form>
+            </article>
+          {% else %}
+            <div class="nx-empty"><svg viewBox="0 0 256 256"><path d="M 128 128 C 128 198.692 70.692 256 0 256 C 0 185.308 57.308 128 128 128 Z M 128 128 C 198.692 128 256 185.308 256 256 C 185.308 256 128 198.692 128 128 Z M 0 0 C 70.692 0 128 57.308 128 128 C 57.308 128 0 70.692 0 0 Z M 256 0 C 256 70.692 198.692 128 128 128 C 128 57.308 185.308 0 256 0 Z"/></svg><b>Növbə təmizdir</b><p>Təsdiq gözləyən layihə yoxdur.</p></div>
+          {% endfor %}
+          </div>
+          {% if approval_rows|length > 1 %}<footer><span>Scroll</span><i></i><small>{{ approval_rows|length }} iş</small></footer>{% endif %}
+        </section>
+      </div>
+    </main>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,17 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+sqlalchemy==2.0.35
+jinja2==3.1.4
+python-dotenv==1.0.1
+requests==2.32.3
+# Windows-da sistem timezone bazası yoxdur — night_shift.py-dəki ZoneInfo("Asia/Baku")
+# onsuz ZoneInfoNotFoundError atıb bütün tətbiqin işə düşməsini bloklayır.
+tzdata==2026.3
+psycopg[binary]==3.2.13
+celery[redis]==5.5.3
+redis==5.2.1
+
+# Canlı zəng demosu (/voice-demo): Twilio zəngi başladır. `websockets` OpenAI Realtime
+# API-yə (wss://) çıxış bağlantısı üçündür — uvicorn[standard] onu onsuz da öz asılılığı
+# kimi gətirir (server GİRİŞ tərəfi üçün), burada CLIENT kimi işlədirik, versiya sabitlənmir.
+twilio==9.11.0

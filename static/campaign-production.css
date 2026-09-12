@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&display=swap');
+body:has(.production-hero){background:#0c0c0c;color:#f5f5f0}
+body:has(.production-hero) .shell{max-width:none;padding:0}
+.production-hero{height:100svh;min-height:620px;position:relative;isolation:isolate;background:#181818;overflow:hidden;color:white;font-family:Inter,Arial,sans-serif}
+.production-film,.production-shade{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+.production-film{transition:opacity .6s;opacity:0}.production-film.is-ready{opacity:1}
+.production-shade{z-index:-1;background:linear-gradient(180deg,rgba(0,0,0,.3),rgba(0,0,0,.14) 45%,rgba(0,0,0,.6))}
+.production-heading{position:absolute;inset:34% 20px auto;text-align:center;animation:production-enter 1s both;transition:opacity .35s,transform .45s}
+.production-heading.is-changing{opacity:0;transform:translateY(22px)}
+.production-heading p{font-size:11px;letter-spacing:.22em;font-weight:600}
+.production-heading h1{font:800 clamp(64px,8vw,132px)/.88 'Barlow Condensed','Arial Narrow',sans-serif;letter-spacing:-.045em;margin:24px 0}
+.production-heading a,.production-bottom a{color:white;text-decoration:none;font-size:13px}
+.production-heading a{display:inline-block;border-bottom:1px solid #ffffff70;padding:12px 0}
+.production-bottom{position:absolute;bottom:32px;left:4%;right:4%;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.production-scenes{display:flex;align-items:center;gap:12px}.production-scenes button,.production-pause{background:none;border:0;color:white;cursor:pointer;font:500 12px Inter,Arial;padding:12px}
+.production-scenes button{border-bottom:2px solid transparent;opacity:.55}.production-scenes button[aria-pressed=true]{opacity:1;border-color:white}.production-scenes span{font-size:12px;opacity:.6}
+.production-media-note{position:absolute;bottom:85px;left:4%;font-size:12px}
+body:has(.production-hero) .cp-page{background:radial-gradient(circle at 82% 0,rgba(91,107,111,.14),transparent 34%),linear-gradient(180deg,#101313 0%,#080909 100%);color:#f2f2ed;padding:90px 4% 100px;scroll-margin-top:140px;font-family:Inter,Arial,sans-serif;position:relative}
+body:has(.production-hero) .cp-page:before{content:"";position:absolute;left:4%;right:4%;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent)}
+body:has(.production-hero) .cp-head{max-width:none;align-items:center;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:48px;margin-bottom:44px;gap:30px}
+body:has(.production-hero) .cp-head span{color:#9ba3a2;font-size:11px}
+body:has(.production-hero) .cp-head h1{font:700 clamp(45px,6vw,92px)/.95 'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:-.03em}
+body:has(.production-hero) .cp-head p{color:#a7acab;font-size:14px;line-height:1.7}
+body:has(.production-hero) .cp-layout{max-width:none;grid-template-columns:320px minmax(0,1fr);gap:48px}
+body:has(.production-hero) .cp-sidebar,body:has(.production-hero) .cp-main{background:none;box-shadow:none;backdrop-filter:none;padding:0;border-radius:0;overflow:visible}
+body:has(.production-hero) .cp-sidebar:before,body:has(.production-hero) .cp-main:before{display:none}
+body:has(.production-hero) .cp-sidebar h2{font:600 28px 'Barlow Condensed',sans-serif;text-transform:uppercase}
+body:has(.production-hero) .cp-field{color:#8f9795;font-size:10px;margin:18px 0}
+body:has(.production-hero) .cp-field input,body:has(.production-hero) .cp-field textarea,body:has(.production-hero) .cp-resize input,body:has(.production-hero) .dur-custom input{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.2);color:#f2f2ed;font:14px/1.5 Inter,Arial;padding:12px;border-radius:0;color-scheme:dark;transition:border-color .2s,background .2s}
+body:has(.production-hero) .cp-field input:focus,body:has(.production-hero) .cp-field textarea:focus{border-color:rgba(255,255,255,.58);background:rgba(255,255,255,.075)}
+body:has(.production-hero) input:focus-visible,body:has(.production-hero) textarea:focus-visible,body:has(.production-hero) button:focus-visible,body:has(.production-hero) a:focus-visible{outline:2px solid #8585ff;outline-offset:4px}
+body:has(.production-hero) .cp-create{background:#f0f0eb;color:#101212;padding:18px;font-size:14px;transition:background .2s,transform .2s}body:has(.production-hero) .cp-create:hover{background:#fff;transform:translateY(-2px)}
+body:has(.production-hero) .cp-duration{border-color:rgba(255,255,255,.2);padding:12px 0;border-width:1px 0}
+body:has(.production-hero) .cp-duration legend,body:has(.production-hero) .dur-opt b,body:has(.production-hero) .dur-opt span,body:has(.production-hero) .dur-preview,body:has(.production-hero) .dur-custom,body:has(.production-hero) .cp-resize label{color:#a6adab}
+.cp-page .dur-custom[hidden]{display:none}
+body:has(.production-hero) .cp-list{border-color:rgba(255,255,255,.18)}body:has(.production-hero) .cp-list a{font-size:13px;color:#9ca3a1;padding:16px 8px;border-color:rgba(255,255,255,.12)}body:has(.production-hero) .cp-list a:hover{color:#fff}body:has(.production-hero) .cp-list a.active{background:rgba(255,255,255,.1);color:#fff;border-left:2px solid #fff}
+body:has(.production-hero) .campaign-top{border-color:rgba(255,255,255,.2)}body:has(.production-hero) .campaign-top h2{font:600 40px/1.1 'Barlow Condensed',sans-serif}body:has(.production-hero) .campaign-top p{color:#a6acab;font-size:14px;line-height:1.6}body:has(.production-hero) .campaign-meta{color:#8f9795;font-size:11px;flex-wrap:wrap}
+body:has(.production-hero) .campaign-status{color:#d8ebe1;border-color:#60796d;font-size:10px;background:rgba(100,145,124,.1)}
+body:has(.production-hero) .cp-resize{background:transparent;border-color:rgba(255,255,255,.18);padding:18px 0;border-width:0 0 1px}body:has(.production-hero) .cp-resize button{color:#eee;border-color:#777;font-size:12px}body:has(.production-hero) .cp-phases i{color:#aab0ae;border-color:rgba(255,255,255,.18)}
+body:has(.production-hero) .calendar{grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border-top:1px solid rgba(255,255,255,.24)}
+body:has(.production-hero) .day{border:0;border-bottom:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.012);box-shadow:none;backdrop-filter:none;padding:24px 20px;min-height:320px;border-right:1px solid rgba(255,255,255,.18);transition:background .25s,transform .25s}
+body:has(.production-hero) .day:hover{background:rgba(255,255,255,.065);transform:translateY(-3px)}body:has(.production-hero) .day-no{font:600 62px/1 'Barlow Condensed',sans-serif;color:#f0f0eb}
+body:has(.production-hero) .platform{top:28px;right:20px;color:#929a98;font-size:10px}body:has(.production-hero) .type{align-self:flex-start;color:#aab0ae;border-color:rgba(255,255,255,.24);font-size:10px}body:has(.production-hero) .day h3{color:#f1f1ed;font-size:16px;line-height:1.4}body:has(.production-hero) .day p{font:13px/1.6 Inter,Arial;color:#9da4a2}
+body:has(.production-hero) .to-asset button{border:0;border-top:1px solid rgba(255,255,255,.2);text-align:left;padding:14px 0;color:#e7e8e3;font-size:10px}body:has(.production-hero) .to-asset button:hover{background:#f1f1ed;color:#101212;padding-left:10px}
+body:has(.production-hero) .empty{color:#929997}body:has(.production-hero) .empty b{font:600 44px 'Barlow Condensed',sans-serif;color:#f0f0eb}
+@keyframes production-enter{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+@media(max-width:1000px){body:has(.production-hero) .cp-layout{grid-template-columns:270px minmax(0,1fr);gap:24px}body:has(.production-hero) .calendar{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.production-bottom{flex-wrap:wrap;justify-content:center}.production-bottom>a{display:none}.production-heading{top:36%}body:has(.production-hero) .cp-layout{grid-template-columns:1fr}body:has(.production-hero) .cp-head{display:block}body:has(.production-hero) .cp-main{margin-top:20px}body:has(.production-hero) .campaign-top{flex-wrap:wrap}}
+@media(max-width:440px){body:has(.production-hero) .calendar{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.production-heading{animation:none}.production-film,body:has(.production-hero) .day{transition:none}}

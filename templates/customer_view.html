@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% if project %}{{ project.brief[:60] }}{% else %}Nəticə{% endif %} — The Aigency</title>
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 24px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #0f1115; color: #f2f2f2;
+  }
+  .card {
+    max-width: 480px; width: 100%; background: #1a1d24; border-radius: 20px; overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4); border: 1px solid #2a2e38;
+  }
+  .head {
+    display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid #2a2e38;
+  }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg,#6d5ef8,#a06df8);
+    display: flex; align-items: center; justify-content: center; font-size: 18px;
+  }
+  .handle { font-weight: 600; font-size: 14px; }
+  .brand { font-size: 12px; color: #9aa1ac; }
+  img.post-image { width: 100%; display: block; background: #0a0b0d; }
+  .caption { padding: 18px; font-size: 15px; line-height: 1.55; white-space: pre-wrap; }
+  .sales { padding: 16px 18px; border-top: 1px solid #2a2e38; }
+  .sales h3 { margin: 0 0 10px; font-size: 14px; color: #c9b6ff; }
+  .sales pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-family: inherit; font-size: 13.5px; line-height: 1.5; color: #d6d9e0; }
+  .footer { padding: 14px 18px; border-top: 1px solid #2a2e38; font-size: 12px; color: #6b7280; }
+  .empty { text-align: center; padding: 60px 20px; color: #9aa1ac; }
+</style>
+</head>
+<body>
+{% if not_ready or not project %}
+  <div class="card"><div class="empty">🕐 Bu nəticə hələ hazır deyil ya da mövcud deyil.</div></div>
+{% else %}
+  <div class="card">
+    <div class="head">
+      <div class="avatar">🏢</div>
+      <div>
+        <div class="handle">The Aigency</div>
+        <div class="brand">Instagram tanıtım postu</div>
+      </div>
+    </div>
+    {% if project.deliverable_image_url %}
+    <img class="post-image" src="{{ project.deliverable_image_url }}" alt="Post şəkli">
+    {% endif %}
+    <div class="caption">{{ project.deliverable_html }}</div>
+    {% if project.sales_kit %}
+    <div class="sales">
+      <h3>📈 Satış materialları</h3>
+      <pre>{{ project.sales_kit }}</pre>
+    </div>
+    {% endif %}
+    <div class="footer">Layihə #{{ project.id }} · The Aigency tərəfindən hazırlanıb</div>
+  </div>
+{% endif %}
+</body>
+</html>

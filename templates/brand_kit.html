@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Brand Kit — {{ current_workspace.name }}{% endblock %}
+{% block content %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Instrument+Serif:ital@0;1&family=Cormorant+Garamond:wght@400;600&family=DM+Serif+Display&family=Cinzel:wght@400;600&family=Lora:wght@400;600&family=Inter:wght@400;600&family=Poppins:wght@400;600&family=Manrope:wght@400;600&family=Work+Sans:wght@400;600&family=Space+Grotesk:wght@400;600&family=Outfit:wght@400;600&family=DM+Sans:wght@400;600&family=Sora:wght@400;600&display=swap" rel="stylesheet">
+<style>
+.bk-sugg{margin:0 0 26px;padding:20px 22px;border:1px solid rgba(212,185,120,.3);background:rgba(212,185,120,.05)}.bk-sugg h2{font:400 19px var(--font-serif,Georgia,serif);color:#dbc99f;margin:0 0 6px}.bk-sugg-note{font-size:10px;color:#9a8f7d;line-height:1.6;margin:0 0 16px}.bk-card{border-top:1px solid rgba(212,185,120,.15);padding:14px 0}.bk-card b{display:block;font-size:12px;color:#e0cfa6;margin-bottom:4px}.bk-card i{display:block;font-size:10px;color:#8f8474;font-style:italic;margin-bottom:9px}.bk-diff{display:grid;grid-template-columns:1fr 1fr;gap:10px}.bk-diff small{font-size:7px;letter-spacing:.16em;color:#8a7c66}.bk-diff p{font-size:11px;line-height:1.55;color:#c3b89f;margin:4px 0 0}.bk-acts{display:flex;gap:8px;margin-top:11px}.bk-acts button{padding:8px 14px;font-size:10px;border:0;cursor:pointer}.bk-acts .ok{background:#78916b;color:#f2eee6}.bk-acts .no{background:transparent;border:1px solid #4a3c2c;color:#a89a80}@media(max-width:640px){.bk-diff{grid-template-columns:1fr}}
+
+  .brandkit-page{min-height:100svh;padding:130px clamp(22px,6vw,88px) 80px;background:radial-gradient(circle at 80% 10%,rgba(166,119,55,.15),transparent 30%),#0c0907}
+  .bk-head{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;max-width:1240px;margin:0 auto 44px}.bk-kicker{font:600 8px/1 Arial,sans-serif;letter-spacing:.2em;color:#b49459}.bk-head h1{font:italic clamp(45px,6vw,78px)/.95 'Instrument Serif',Georgia,serif;letter-spacing:-.045em;margin:13px 0 0}.bk-head p{max-width:390px;color:#8c8376;font-size:12px;line-height:1.7;margin:0}
+  .bk-grid{max-width:1240px;margin:auto;display:grid;grid-template-columns:1.4fr .6fr;gap:20px}.bk-form,.bk-preview{background:rgba(255,255,255,.015);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:none;box-shadow:inset 0 1px 1px rgba(255,255,255,.08);padding:30px;position:relative;overflow:hidden}
+.bk-preview::before{content:'';position:absolute;inset:0;border-radius:inherit;padding:1.2px;background:linear-gradient(180deg,rgba(255,255,255,.4) 0%,rgba(255,255,255,.12) 20%,rgba(255,255,255,0) 40%,rgba(255,255,255,0) 60%,rgba(255,255,255,.12) 80%,rgba(255,255,255,.4) 100%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}.bk-section{padding-bottom:26px;margin-bottom:26px;border-bottom:1px solid rgba(218,191,137,.12)}.bk-section:last-of-type{border:0}.bk-section h2{font:400 21px/1.2 Georgia,serif;margin:0 0 6px}.bk-section>p{font-size:10px;color:#756d61;margin:0 0 18px}
+  .bk-field{display:block;margin-top:16px;font-size:8px;letter-spacing:.13em;color:#a0927c;text-transform:uppercase}.bk-field input,.bk-field textarea{width:100%;display:block;margin-top:8px;padding:13px;background:#0b0806;border:1px solid #332a21;color:#e9e0d1;font:12px/1.6 Arial,sans-serif;outline:none;resize:vertical}.bk-field input:focus,.bk-field textarea:focus{border-color:#a98a51}.bk-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.bk-save{display:flex;align-items:center;justify-content:space-between;width:100%;background:#d4b978;border:0;padding:17px 18px;color:#161008;font-weight:700;cursor:pointer}.bk-save:hover{background:#ead49c}.bk-alert{padding:12px 14px;margin-bottom:18px;font-size:10px;border:1px solid}.bk-alert.ok{border-color:#6f8d62;color:#aac89d;background:rgba(111,141,98,.08)}.bk-alert.error{border-color:#8d5148;color:#d7a39a;background:rgba(141,81,72,.08)}
+  .bk-preview{position:sticky;top:100px;height:max-content}.preview-logo{width:74px;height:74px;border:1px solid #7e6742;display:grid;place-items:center;margin-bottom:24px;overflow:hidden;font:italic 29px Georgia,serif;color:#d4b978}.preview-logo img{width:100%;height:100%;object-fit:contain}.bk-preview h3{font:400 27px Georgia,serif;margin:0 0 8px}.bk-preview .voice{color:#a29889;font:italic 14px/1.55 Georgia,serif;min-height:44px}.swatches{display:flex;gap:8px;margin:25px 0}.swatch{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.24);box-shadow:0 0 0 4px rgba(255,255,255,.025)}.memory-list{margin-top:26px;border-top:1px solid rgba(218,191,137,.14);padding-top:18px}.memory-list div{display:flex;justify-content:space-between;gap:15px;padding:9px 0;font-size:9px;border-bottom:1px solid rgba(218,191,137,.08)}.memory-list span{color:#746c60;text-transform:uppercase;letter-spacing:.08em}.memory-list b{color:#b6aa98;text-align:right;font-weight:400}
+  @media(max-width:880px){.bk-head{display:block}.bk-head p{margin-top:20px}.bk-grid{grid-template-columns:1fr}.bk-preview{position:static;grid-row:1}.bk-row{grid-template-columns:1fr}.brandkit-page{padding-top:105px}}
+  .bk-field select{width:100%;display:block;margin-top:8px;padding:13px;background:#0b0806;border:1px solid #332a21;color:#e9e0d1;font:12px/1.6 Arial,sans-serif;outline:none}
+  .bk-field select:focus{border-color:#a98a51}
+  .font-sample{margin-top:9px;padding:14px 15px;border:1px solid rgba(218,191,137,.14);background:rgba(255,255,255,.015);font-size:19px;color:#e9dfcb;line-height:1.3;min-height:30px;text-transform:none;letter-spacing:0}
+  .font-sample small{display:block;font:9px/1.4 Arial,sans-serif;color:#756d61;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+</style>
+<link rel="stylesheet" href="/static/brand-velorah.css?v=1">
+<section class="bk-cinema" aria-labelledby="bkCinemaTitle">
+  <video class="bk-cinema-video" autoplay loop muted playsinline preload="none" aria-hidden="true" data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4"></video>
+  <div class="bk-cinema-copy">
+    <p class="bk-cinema-kicker animate-fade-rise">BRAND MEMORY · {{ current_workspace.slug }}</p>
+    <h1 id="bkCinemaTitle" class="animate-fade-rise">Brendiniz <em>yaddaşdan</em><br><em>kimliyə çevrilir.</em></h1>
+    <p class="bk-cinema-text animate-fade-rise-delay">Səsinizi, vizual dilinizi və davranış qaydalarınızı bir dəfə müəyyən edin. Bütün yaradıcı sistem həmin kimliyi ardıcıl qorusun.</p>
+    <a class="bk-cinema-cta liquid-glass animate-fade-rise-delay-2" href="#brandMemory">Brand Kit-i qur <span>↘</span></a>
+  </div>
+  <a class="bk-cinema-scroll" href="#brandMemory">YADDAŞI FORMALAŞDIR <span>↓</span></a>
+</section>
+<section class="brandkit-page" id="brandMemory">
+  <header class="bk-head"><div><span class="bk-kicker">BRAND MEMORY · {{ current_workspace.slug }}</span><h1>Brendinizin yaddaşı.</h1></div><p>Bu məlumatlar gələcək strategiya, mətn, dizayn və kampaniyalarda bütün agentlər üçün vahid qayda olacaq.</p></header>
+  <div class="bk-grid">
+    <form class="bk-form" method="post" action="/brand-kit">
+      {% if saved %}<div class="bk-alert ok">Brand Kit yadda saxlanıldı. Agentlər növbəti layihədən etibarən istifadə edəcək.</div>{% endif %}
+      {% if error %}<div class="bk-alert error">{{ error }}</div>{% endif %}
+      <section class="bk-section"><h2>Brend əsası</h2><p>Şirkətin kimliyini və bazardakı mövqeyini müəyyən edin.</p>
+        {% if suggestions %}<section class="bk-sugg"><h2>Layihələrdən gələn təkliflər</h2><p class="bk-sugg-note">Bunlar avtomatik TƏTBİQ EDİLMİR. Brand Kit bütün generasiyanın qidalandığı mənbədir — ora yalnız sizin qəbul etdiyiniz dəyər yazılır.</p>{% for s in suggestions %}<article class="bk-card"><b>{{ suggestable.get(s.field, s.field) }}</b>{% if s.rationale %}<i>{{ s.rationale }}</i>{% endif %}<div class="bk-diff"><div><small>İNDİ</small><p>{{ s.current_value or "(boş)" }}</p></div><div><small>TƏKLİF</small><p>{{ s.suggested_value }}</p></div></div><div class="bk-acts"><form method="post" action="/brand-kit/suggestions/{{ s.id }}/accept"><button class="ok">Qəbul et</button></form><form method="post" action="/brand-kit/suggestions/{{ s.id }}/dismiss"><button class="no">İmtina</button></form></div></article>{% endfor %}</section>{% endif %}
+<label class="bk-field">Brend adı<input name="workspace_name" maxlength="120" required value="{{ current_workspace.name }}" placeholder="LUMÉA Skin"></label><label class="bk-field">Brend haqqında<textarea name="brand_description" rows="4" maxlength="3000" placeholder="Nə edirsiniz, hansı problemi həll edirsiniz?">{{ current_workspace.brand_description or '' }}</textarea></label>
+        <label class="bk-field">Məhsul və xidmətlər<textarea name="brand_products" rows="4" maxlength="4000" placeholder="Məhsullar, xidmətlər, paketlər və qiymətlər">{{ current_workspace.brand_products or '' }}</textarea></label>
+        <label class="bk-field">Hədəf auditoriyası<textarea name="brand_audience" rows="3" maxlength="3000" placeholder="Kimdir, hansı ehtiyacı və motivasiyası var?">{{ current_workspace.brand_audience or '' }}</textarea></label>
+      </section>
+      <section class="bk-section"><h2>Vizual sistem</h2><p>Agentlərin bütün materiallarda qoruyacağı vizual çərçivə.</p>
+        <label class="bk-field">Rəng palitrası
+          <select id="colorPalette">{% for opt in color_options %}<option value="{{ opt.value }}" {% if opt.value == color_selected %}selected{% endif %}>{{ opt.name }}</option>{% endfor %}</select>
+          <div class="swatches" id="paletteSample" style="margin:9px 0 0"></div>
+        </label>
+        <input type="hidden" name="brand_colors" id="brandColors" value="{{ color_selected }}">
+        <div class="bk-row">
+          <label class="bk-field">Başlıq şrifti
+            <select id="headingFont">{% for f in font_options %}<option value="{{ f }}" style="font-family:'{{ f }}'" {% if f == heading_font %}selected{% endif %}>{{ f }}</option>{% endfor %}</select>
+            <div class="font-sample" id="headingSample"><small>Nümunə</small>Brendiniz danışır</div>
+          </label>
+          <label class="bk-field">Mətn şrifti
+            <select id="bodyFont">{% for f in font_options %}<option value="{{ f }}" style="font-family:'{{ f }}'" {% if f == body_font %}selected{% endif %}>{{ f }}</option>{% endfor %}</select>
+            <div class="font-sample" id="bodySample"><small>Nümunə</small>Sadə, oxunaqlı mətn nümunəsi.</div>
+          </label>
+        </div>
+        <input type="hidden" name="brand_fonts" id="brandFonts" value="{{ current_workspace.brand_fonts or '' }}">
+        <label class="bk-field">Loqo URL<input id="brandLogo" name="brand_logo_url" maxlength="500" value="{{ current_workspace.brand_logo_url or '' }}" placeholder="https://..."></label>
+      </section>
+      <section class="bk-section"><h2>Səs və davranış</h2><p>Kopirayter və satış agentlərinin necə danışacağını müəyyən edin.</p>
+        <label class="bk-field">Ünsiyyət tonu<textarea id="brandVoice" name="brand_voice" rows="3" maxlength="1500" placeholder="Məs: aydın, cəsarətli, peşəkar; qısa cümlələr">{{ current_workspace.brand_voice or '' }}</textarea></label>
+        <label class="bk-field">Qadağan edilmiş ifadələr<textarea name="brand_forbidden_phrases" rows="3" maxlength="2000" placeholder="İstifadə edilməməli sözlər, iddialar və mövzular">{{ current_workspace.brand_forbidden_phrases or '' }}</textarea></label><label class="bk-field">Terminologiya lüğəti<textarea name="brand_glossary" rows="3" maxlength="2000" placeholder="Hər sətirdə bir cüt:&#10;baryer -&gt; bariyer&#10;serum -&gt; serum">{{ current_workspace.brand_glossary or '' }}</textarea><small style="display:block;margin-top:5px;font-size:9px;color:#7d7263;line-height:1.5">Sol tərəfdəki forma çıxışda görünsə, sağdakı ilə əvəz olunur. Həm prompta düşür, həm də avtomatik yoxlanılır.</small></label>
+        <label style="display:flex;gap:11px;align-items:flex-start;margin-top:20px;color:#9f927e;font-size:10px;line-height:1.55"><input type="checkbox" name="brand_ai_consent" style="width:auto;margin-top:2px" {% if current_workspace.brand_ai_consent %}checked{% endif %}><span>Brand Memory məlumatlarının yaradıcı iş zamanı konfiqurasiya edilmiş xarici AI provayderlərinə (Groq/Gemini/Hugging Face) göndərilməsinə icazə verirəm.</span></label>
+      </section>
+      <button class="bk-save" type="submit"><span>Brand Memory-ni yadda saxla</span><span>→</span></button>
+    </form>
+    <section class="bk-form" style="margin-top:20px">
+      <section class="bk-section" style="border:0;padding-bottom:0;margin-bottom:0">
+        <h2>Sosial hesablar</h2><p>Studio+-dan birbaşa paylaşım üçün platformalarınızı qoşun.</p>
+        {% if tiktok_notice == 'connected' %}<div class="bk-alert ok">TikTok hesabı qoşuldu.</div>{% endif %}
+        {% if tiktok_notice == 'disconnected' %}<div class="bk-alert ok">TikTok hesabı ayrıldı.</div>{% endif %}
+        {% if tiktok_notice == 'denied' %}<div class="bk-alert error">TikTok icazəsi verilmədi.</div>{% endif %}
+        {% if tiktok_notice in ('state_mismatch', 'no_code', 'exchange_failed') %}<div class="bk-alert error">TikTok qoşulması uğursuz oldu — yenidən cəhd edin.</div>{% endif %}
+        {% if tiktok_notice == 'app_not_configured' %}<div class="bk-alert error">TikTok inteqrasiyası hələ konfiqurasiya edilməyib (TIKTOK_CLIENT_KEY boşdur).</div>{% endif %}
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 0">
+          <div><b style="display:block;font-size:12px;color:#e0cfa6;margin-bottom:3px">TikTok</b>
+            <span style="font-size:10px;color:#8f8474">{% if tiktok_connected %}Hesab qoşulub — Studio+-da Reel-ləri birbaşa paylaşa bilərsiniz.{% elif tiktok_app_configured %}Hesabınızı qoşub Reel-ləri birbaşa TikTok-a paylaşın.{% else %}İnteqrasiya hazır deyil — əvvəlcə admin TikTok app məlumatlarını əlavə etməlidir.{% endif %}</span></div>
+          {% if tiktok_connected %}
+          <form method="post" action="/tiktok/disconnect"><button type="submit" style="padding:10px 16px;background:transparent;border:1px solid #8e5d51;color:#d4a49a;font-size:10px;cursor:pointer">Ayır</button></form>
+          {% else %}
+          <a href="/tiktok/connect" style="padding:10px 16px;background:{% if tiktok_app_configured %}#d4b978{% else %}#3a3226{% endif %};color:{% if tiktok_app_configured %}#161008{% else %}#544934{% endif %};font-size:10px;font-weight:700;text-decoration:none;pointer-events:{% if tiktok_app_configured %}auto{% else %}none{% endif %};opacity:{% if tiktok_app_configured %}1{% else %}.5{% endif %}">TikTok qoş →</a>
+          {% endif %}
+        </div>
+      </section>
+    </section>
+    <aside class="bk-preview"><div class="preview-logo" id="logoPreview">{% if current_workspace.brand_logo_url %}<img src="{{ current_workspace.brand_logo_url }}" alt="Loqo">{% else %}{{ current_workspace.name[:1]|upper }}{% endif %}</div><h3>{{ current_workspace.name }}</h3><p class="voice" id="voicePreview">{{ current_workspace.brand_voice or 'Brendin ünsiyyət tonu burada görünəcək.' }}</p><div class="swatches" id="colorPreview"></div><div class="memory-list"><div><span>Owner</span><b>{{ current_user.full_name }}</b></div><div><span>Şrift</span><b>{{ current_workspace.brand_fonts or 'Təyin edilməyib' }}</b></div><div><span>Yenilənmə</span><b>{% if current_workspace.brand_updated_at %}{{ current_workspace.brand_updated_at.strftime('%d.%m.%Y') }}{% else %}İlk qurulum{% endif %}</b></div></div></aside>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script>
+  const colors = document.getElementById('brandColors'); const preview = document.getElementById('colorPreview');
+  const paletteSelect = document.getElementById('colorPalette'), paletteSample = document.getElementById('paletteSample');
+  function swatchesFrom(el, value){ el.innerHTML=''; (value.match(/#[0-9a-fA-F]{6}/g)||[]).slice(0,5).forEach(c=>{const i=document.createElement('i');i.className='swatch';i.style.background=c;i.title=c;el.appendChild(i)}); if(!el.children.length) el.innerHTML='<span style="font-size:9px;color:#6f685e">Palitra seçin</span>'; }
+  function renderColors(){ swatchesFrom(preview, colors.value); swatchesFrom(paletteSample, colors.value); }
+  function syncPalette(){ colors.value = paletteSelect.value; renderColors(); }
+  paletteSelect.addEventListener('change', syncPalette); renderColors();
+  const voice=document.getElementById('brandVoice'),voicePreview=document.getElementById('voicePreview');voice.addEventListener('input',()=>voicePreview.textContent=voice.value||'Brendin ünsiyyət tonu burada görünəcək.');
+  const logo=document.getElementById('brandLogo'),logoPreview=document.getElementById('logoPreview');logo.addEventListener('change',()=>{logoPreview.innerHTML=logo.value?`<img src="${logo.value.replace(/"/g,'')}" alt="Loqo">`:'{{ current_workspace.name[:1]|upper }}'});
+
+  const headingFont=document.getElementById('headingFont'),bodyFont=document.getElementById('bodyFont');
+  const headingSample=document.getElementById('headingSample'),bodySample=document.getElementById('bodySample');
+  const brandFontsHidden=document.getElementById('brandFonts');
+  function syncFonts(){
+    headingSample.style.fontFamily=`'${headingFont.value}'`;
+    bodySample.style.fontFamily=`'${bodyFont.value}'`;
+    brandFontsHidden.value=headingFont.value+', '+bodyFont.value;
+  }
+  headingFont.addEventListener('change',syncFonts); bodyFont.addEventListener('change',syncFonts); syncFonts();
+
+  const brandVideo=document.querySelector('.bk-cinema-video');
+  if(brandVideo){
+    const watch=new IntersectionObserver(([entry])=>{if(entry.isIntersecting){brandVideo.play().catch(()=>{});}else{brandVideo.pause();}},{threshold:.08});
+    watch.observe(brandVideo);
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)brandVideo.pause();else if(brandVideo.getBoundingClientRect().bottom>0)brandVideo.play().catch(()=>{});});
+  }
+</script>{% endblock %}

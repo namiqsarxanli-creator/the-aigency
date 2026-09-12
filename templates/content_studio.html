@@ -1,0 +1,408 @@
+{% extends "base.html" %}{% block title %}Content Studio — {{ current_workspace.name }}{% endblock %}{% block content %}
+<style>
+.cs-page{min-height:100svh;padding:120px clamp(20px,5vw,70px) 70px;background:#0c0907}
+.cs-head{max-width:1320px;margin:0 auto 32px}
+.cs-head span{font-size:8px;letter-spacing:.2em;color:#b49459}
+.cs-head h1{font:italic clamp(44px,5vw,70px)/.95 'Instrument Serif',var(--font-serif,Georgia,serif);margin:12px 0}
+.cs-head p{color:#8f8474;font-size:12px;max-width:60ch;line-height:1.7;margin:0}
+.cs-layout{max-width:1320px;margin:auto;display:grid;grid-template-columns:360px 1fr;gap:18px}
+.cs-panel,.cs-workbench{background:rgba(255,255,255,.015);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:none;box-shadow:inset 0 1px 1px rgba(255,255,255,.08);padding:22px;position:relative;overflow:hidden}
+.cs-panel::before,.cs-workbench::before{content:'';position:absolute;inset:0;border-radius:inherit;padding:1.2px;background:linear-gradient(180deg,rgba(255,255,255,.4) 0%,rgba(255,255,255,.12) 20%,rgba(255,255,255,0) 40%,rgba(255,255,255,0) 60%,rgba(255,255,255,.12) 80%,rgba(255,255,255,.4) 100%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.cs-panel h2{font:400 21px var(--font-serif,Georgia,serif);margin:0 0 4px}
+.cs-panel .hint{font-size:10px;color:#7f7566;line-height:1.6;margin:0 0 14px}
+.cs-field{display:block;margin:13px 0;font-size:7px;letter-spacing:.12em;color:#958875;text-transform:uppercase}
+.cs-field input,.cs-field textarea,.cs-field select{display:block;width:100%;margin-top:7px;background:#0a0806;border:1px solid #352b21;color:#e7ddce;padding:11px;font:11px/1.6 var(--font-sans,Arial,sans-serif)}
+.cs-field small{display:block;margin-top:5px;font-size:9px;letter-spacing:0;text-transform:none;color:#7d7263;line-height:1.5}
+.chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.chip-row label{flex:1 1 auto;position:relative}
+.chip-row input{position:absolute;opacity:0;pointer-events:none}
+.chip-row span{display:block;padding:8px 10px;border:1px solid #352b21;color:#9a8f7d;font-size:10px;letter-spacing:.02em;text-transform:none;cursor:pointer;text-align:center}
+.chip-row input:checked+span{border-color:#d4b978;color:#f0e2c4;background:rgba(212,185,120,.09)}
+.chip-row input:focus-visible+span{outline:2px solid #d4b978;outline-offset:2px}
+.cs-create{width:100%;padding:14px;background:#d4b978;color:#171008;border:0;font-weight:700;cursor:pointer}
+.cs-reel-box{margin-top:22px;border-top:1px solid rgba(218,191,137,.12);padding-top:16px}
+.asset-list{margin-top:22px;border-top:1px solid rgba(218,191,137,.12);padding-top:12px}
+.asset-list a{display:block;color:#9a9081;text-decoration:none;padding:10px 7px;border-bottom:1px solid rgba(218,191,137,.08);font-size:9px}
+.asset-list a.active{color:#e4d5ba}
+.asset-list i{font-style:normal;font-size:6px;border:1px solid rgba(218,191,137,.2);padding:3px 5px;float:right}
+.cs-src{display:block;font:500 9px/1.3 "IBM Plex Mono",monospace;color:#8a7c66;letter-spacing:.04em;margin-top:3px}
+.cs-orphan{color:#a86a4e}
+.source-broken{display:inline-block;color:#a86a4e}
+.cs-missing{max-width:560px;margin:60px auto;padding:26px;text-align:center;border:1px solid rgba(218,191,137,.25);background:#15100c}
+.cs-missing b{display:block;font:italic 24px var(--font-serif,Georgia,serif);color:#d9c091;margin-bottom:10px}
+.cs-missing p{color:#9a8d78;font-size:13px;line-height:1.6}
+.cs-missing a{color:#d9c091;font-size:12px}
+.cs-workbench{min-height:650px;display:grid;place-items:center;background:radial-gradient(circle at center,rgba(160,115,55,.1),transparent 45%),#100c09}
+.preview{background:#eee7dc;color:#17120e;box-shadow:0 30px 80px rgba(0,0,0,.5);position:relative;overflow:hidden}
+.preview.post{width:360px;aspect-ratio:4/5}
+.preview.story,.preview.reel{height:590px;aspect-ratio:9/16}
+.source-day{display:block;margin-top:14px;padding:10px;border:1px solid rgba(212,185,120,.22);background:rgba(212,185,120,.05);color:#c3a76f;text-decoration:none;font-size:8px;letter-spacing:.08em}
+.source-day b{color:#e2d3b4}
+.day-nav{display:flex;gap:8px;margin-top:8px}
+.day-nav-stub{flex:1}
+.day-nav form{flex:1}
+.day-nav button{width:100%;padding:9px 10px;background:transparent;border:1px solid rgba(212,185,120,.28);color:#c3a76f;font-size:9px;letter-spacing:.06em;cursor:pointer;transition:.18s}
+.day-nav button:hover{background:#d4b978;border-color:#d4b978;color:#171008}
+.visual-area{height:58%;background:linear-gradient(145deg,#2d4138,#a8854c);display:flex;flex-direction:column;justify-content:flex-end;gap:8px;color:#f4ead8;padding:20px;text-align:left;position:relative}
+.visual-area .va-tag{font-size:7px;letter-spacing:.16em;text-transform:uppercase;opacity:.8;border:1px solid rgba(244,234,216,.45);padding:4px 7px;align-self:flex-start}
+.visual-area .va-brief{font:400 11px/1.5 var(--font-sans,Arial,sans-serif);opacity:.92;margin:0}
+.visual-area .va-none{font:italic 15px var(--font-serif,Georgia,serif);opacity:.72;margin:0}
+.visual-area.has-image{background-size:cover;background-position:center;justify-content:flex-start}
+.visual-area.has-image .va-tag{background:rgba(12,9,7,.62);backdrop-filter:blur(2px)}
+.visual-area.has-video{justify-content:flex-start}
+.visual-area video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.visual-area .va-tag{position:relative;z-index:1}
+.preview-copy{padding:20px}
+.preview-copy small{font-size:7px;letter-spacing:.14em;color:#88775e}
+.preview-copy h2{font:400 24px/1.05 var(--font-serif,Georgia,serif);margin:8px 0 12px}
+.preview-copy p{font-size:10px;line-height:1.6;white-space:pre-line}
+.preview-copy .tags{margin:10px 0 0;font-size:9px;color:#6f6455}
+.carousel-preview{display:flex;gap:12px;max-width:100%;overflow-x:auto;padding:30px}
+.slide{flex:0 0 260px;aspect-ratio:4/5;background:#eee7dc;color:#17120e;padding:24px;display:flex;flex-direction:column;justify-content:space-between}
+.slide b{font:italic 42px var(--font-serif,Georgia,serif);color:#a1824c}
+.slide h3{font:400 25px/1.05 var(--font-serif,Georgia,serif);margin:0}
+.slide.is-empty{border:1px dashed rgba(23,18,14,.35);background:repeating-linear-gradient(135deg,#eee7dc,#eee7dc 9px,#e5dcce 9px,#e5dcce 18px)}
+.slide .s-role{font-size:7px;letter-spacing:.16em;text-transform:uppercase;color:#8a7550;display:block}
+.slide .s-body{font-size:10px;line-height:1.55;color:#4a4036;margin:6px 0 0}
+.slide .s-missing{font:italic 13px var(--font-serif,Georgia,serif);color:#8a8073;margin:0}
+.empty-studio{text-align:center;color:#746c60}
+.empty-studio b{display:block;font:italic 32px var(--font-serif,Georgia,serif);color:#b2a180}
+.empty-studio:before{display:none!important}
+.cs-tools{max-width:1320px;margin:18px auto 0;padding:24px;background:#15100c;border:1px solid rgba(218,191,137,.19)}
+.cs-tools h3{font:400 17px var(--font-serif,Georgia,serif);color:#dbc99f;margin:0 0 10px}
+.cs-tools .lbl{font-size:7px;letter-spacing:.16em;color:#a98a54;text-transform:uppercase}
+.needs-box{border:1px solid #8a6a1f;background:rgba(210,173,102,.07);padding:14px 16px;margin:0 0 18px}
+.needs-box b{color:#d2ad66;font-size:12px;display:block;margin-bottom:6px}
+.needs-box ul{margin:0;padding-left:18px;color:#b3a488}
+.needs-box li{font-size:11px;color:#b3a488;margin-bottom:3px}
+.headline-opts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+.headline-opts button{flex:1 1 240px;text-align:left;padding:12px 14px;background:#0a0806;border:1px solid #352b21;color:#cbbfa8;font:400 12px/1.45 var(--font-sans,Arial,sans-serif);cursor:pointer}
+.headline-opts button.chosen{border-color:#d4b978;color:#f0e2c4}
+.delta-row{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 14px}
+.delta-row button{padding:9px 13px;background:transparent;border:1px solid #4a3c2c;color:#b7a888;font-size:10px;cursor:pointer}
+.delta-row button:hover{border-color:#d4b978;color:#e6d6b4}
+.cs-notice{padding:11px 14px;border:1px solid #8a6a1f;color:#d2ad66;font-size:11px;margin:0 0 16px}
+.cs-notice-ok{border-color:#4c6e46;color:#a9c495}
+.cs-notice-ok a{color:#d4b978}
+.cs-notice-err{border-color:#7f4c43;color:#d39b91}
+.ig-publish{margin-top:22px;padding:18px;border:1px solid rgba(212,185,120,.25);background:rgba(212,185,120,.04);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.ig-publish p{margin:0;font-size:10px;line-height:1.6;color:#9a8f7d;max-width:60ch}
+.ig-publish b{display:block;font-size:12px;color:#e2d3b4;margin-bottom:4px}
+.ig-publish button{padding:12px 20px;background:#d4b978;color:#171008;border:0;font-weight:700;cursor:pointer;white-space:nowrap}
+.ig-publish button:hover{background:#e6cf94}
+.ig-publish.is-done button{background:transparent;border:1px solid rgba(212,185,120,.3);color:#8f8474;cursor:default}
+.ig-publish.is-done button:hover{background:transparent}
+.versions{margin-top:18px;border-top:1px solid rgba(218,191,137,.12);padding-top:12px}
+.versions div{font-size:9px;color:#8d8474;padding:7px 0;border-bottom:1px solid rgba(218,191,137,.06)}
+.versions b{color:#b9a882}
+@media(max-width:850px){.cs-layout{grid-template-columns:1fr}.preview.post{width:min(360px,85vw)}}
+</style>
+
+<link rel="stylesheet" href="/static/studio-mindloop.css?v=2">
+<div class="ml-studio">
+<section class="ml-hero">
+ <video autoplay muted loop playsinline preload="none" data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260325_120549_0cd82c36-56b3-4dd9-b190-069cfc3a623f.mp4" aria-hidden="true"></video>
+ <div class="ml-hero-copy"><div class="ml-mark" aria-hidden="true"><i></i></div><p class="ml-eyebrow">STUDIO+ / {{ current_workspace.name }}</p><h1>Fikrini <em>yaradıcılığa</em><br>çevir.</h1><p>Bir fikir. Dörd format. Brendinizə uyğun mətn, vizual və video — eyni studiyada.</p><div class="ml-hero-actions"><a href="#studioWorkbench">Yaratmağa başla ↗</a><a href="#studioFormats">Formatları kəşf et</a></div></div>
+</section>
+<section class="ml-formats" id="studioFormats"><p class="ml-eyebrow">FİKİRDƏN FORMATA</p><h2>Kontent <em>dəyişib.</em><br>Sənin növbəndir.</h2><p>Mesajınıza uyğun formatı seçin, yaradıcı istiqaməti təyin edin və nəticəni studiyada yoxlayın.</p><div class="ml-format-grid"><a href="#studioWorkbench"><div class="ml-format-art ml-art-post"><i></i><i></i></div><h3>Post & Story</h3><p>Bir baxışda diqqəti çəkən mətn və vizual.</p></a><a href="#studioWorkbench"><div class="ml-format-art ml-art-reel"><i>▷</i></div><h3>Reel</h3><p>Konseptinizi hərəkətli hekayəyə çevirin.</p></a><a href="#studioWorkbench"><div class="ml-format-art ml-art-carousel"><i></i><i></i><i></i></div><h3>Carousel</h3><p>Fikrinizi ardıcıl slaydlarla izah edin.</p></a></div></section>
+<section class="ml-mission"><video autoplay muted loop playsinline preload="none" aria-hidden="true" data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260325_132944_a0d124bb-eaa1-4082-aa30-2310efb42b4b.mp4"></video><h2>Fikir, söz və görüntü.<br><em>Eyni istiqamətdə.</em></h2><p>Brifinizi formalaşdırın. Nəticəni nəzərdən keçirin. Son toxunuşu özünüz edin.</p></section>
+<section class="cs-page" id="studioWorkbench">
+  <header class="cs-head">
+    <span>CONTENT PRODUCTION</span>
+    <h1>Yaradıcı studiya.</h1>
+    <p>Nəticəni siz yazmırsınız — girişi verirsiniz. Sistem başlıq variantlarını, caption-u və
+    vizual istiqaməti yazır, sonra onları qadağan ifadə, sahə etiketi və mənbəsiz rəqəm üçün
+    yoxlayır. Doldura bilmədiyi yeri uydurmur, sizdən istəyir.</p>
+  </header>
+
+  <div class="cs-layout">
+    <aside class="cs-panel">
+      <h2>Yeni material</h2>
+      <p class="hint">Bu forma nəticə deyil, giriş istəyir.</p>
+      <form method="post" action="/content-studio">
+        <label class="cs-field">Ad<input name="title" required maxlength="180" placeholder="Yaz kolleksiyası launch"></label>
+
+        <label class="cs-field">Format<select name="format">
+          <option>POST</option><option>STORY</option><option>REEL</option><option>CAROUSEL</option>
+        </select></label>
+
+        <div class="cs-field">Məqsəd<div class="chip-row">
+          {% for key, label, purpose in goals %}
+          <label><input type="radio" name="goal" value="{{ key }}" {% if key == 'maraq' %}checked{% endif %}><span title="{{ purpose }}">{{ label }}</span></label>
+          {% endfor %}
+        </div></div>
+
+        <label class="cs-field">Mövzu<textarea name="subject" rows="2" maxlength="300" placeholder="Hansı məhsul və ya xidmət haqqındadır?">{{ current_workspace.brand_products or current_workspace.brand_description or '' }}</textarea></label>
+
+        <label class="cs-field">Nə doğrudur?<textarea name="facts" rows="4" maxlength="2000" placeholder="Hər sətirdə bir fakt&#10;12 ay zəmanət&#10;Bakı daxili çatdırılma 1 gün"></textarea>
+          <small>Rəqəm, endirim və zəmanət YALNIZ buradan götürüləcək. Boş qalsa, sistem heç bir rəqəm yazmayacaq.</small>
+        </label>
+
+        <div class="cs-field">Ton<div class="chip-row">
+          {% for key, label in tones %}
+          <label><input type="radio" name="tone" value="{{ key }}" {% if key == 'neytral' %}checked{% endif %}><span>{{ label }}</span></label>
+          {% endfor %}
+        </div></div>
+
+        <label class="cs-field">Növbəti addım<input name="cta" maxlength="200" placeholder="Şərhdə soruşun"></label>
+
+        <button class="cs-create" type="submit">Material yaz →</button>
+      </form>
+
+      <div class="cs-reel-box">
+        <h2 style="margin-top:0">Konseptdən Reel</h2>
+        <p class="hint">Fikri yazın — sistem başlıq, caption və AI video ilə tam Reel hazırlayır. Bir neçə dəqiqə çəkə bilər.</p>
+        {% if notice == 'reel_concept_short' %}<p class="cs-notice cs-notice-err">Konsepti ən azı 10 simvol yazın.</p>{% endif %}
+        <form method="post" action="/content-studio/generate-reel">
+          <label class="cs-field">Konsept<textarea name="concept" rows="3" maxlength="600" required placeholder="Məs: gənc qadın səhər rutinində serumu tətbiq edir, güzgüdə gülümsəyir"></textarea></label>
+          <button class="cs-create" type="submit" style="background:transparent;border:1px solid rgba(212,185,120,.4);color:#d4b978">🎬 Reel yarat</button>
+        </form>
+      </div>
+
+      <nav class="asset-list">
+        {% for asset in assets %}
+        <a href="/content-studio?id={{ asset.id }}" class="{% if selected_asset and selected_asset.id == asset.id %}active{% endif %}">
+          <i>{{ asset.format }}</i><span>{{ asset.title }}</span>
+          {% if asset.campaign_day %}<small class="cs-src">{{ asset.campaign_day.campaign.name }} · Gün {{ asset.campaign_day.day_number }}</small>
+          {% else %}<small class="cs-src cs-orphan">Plan günü yoxdur</small>{% endif %}
+        </a>
+        {% endfor %}
+      </nav>
+    </aside>
+
+    <main class="cs-workbench">
+      {% if asset_missing %}
+      <div class="cs-missing"><b>Bu material tapılmadı.</b>
+        <p>Silinmiş ola bilər, ya da başqa workspace-ə aiddir. Səhv material göstərməmək üçün heç nə açmadıq.</p>
+        <a href="/calendar">Təqvimə qayıt</a>
+      </div>
+      {% endif %}
+
+      {% if selected_asset %}
+        {% if selected_asset.format == 'CAROUSEL' %}
+        <div class="carousel-preview">
+          {% for slide in slides %}
+          <article class="slide{% if slide.empty %} is-empty{% endif %}">
+            <div><b>0{{ slide.number }}</b><span class="s-role">{{ slide.label }}</span></div>
+            {% if slide.empty %}<p class="s-missing">Bu slaydın mətni hələ yazılmayıb.</p>
+            {% else %}<div><h3>{{ slide.headline or '' }}</h3>
+              {% if slide.body %}<p class="s-body">{{ slide.body }}</p>{% endif %}</div>{% endif %}
+            <small>{{ current_workspace.name }}</small>
+          </article>
+          {% endfor %}
+        </div>
+        {% else %}
+        <article class="preview {{ selected_asset.format|lower }}">
+          <div class="visual-area{% if selected_asset.video_url %} has-video{% elif selected_asset.image_url %} has-image{% endif %}"
+               {% if not selected_asset.video_url and selected_asset.image_url %}style="background-image:url('{{ selected_asset.image_url }}')"{% endif %}>
+            {% if selected_asset.video_url %}
+            <video src="{{ selected_asset.video_url }}" controls loop playsinline></video>
+            <span class="va-tag">Video hazırdır</span>
+            {% elif selected_asset.image_url %}
+            <span class="va-tag">{% if selected_asset.image_source == 'generated' %}AI şəkli{% else %}{{ selected_asset.image_source }}{% endif %}</span>
+            {% else %}
+            <span class="va-tag">Vizual brif — şəkil hələ yoxdur</span>
+            {% if selected_asset.visual_brief %}<p class="va-brief">{{ selected_asset.visual_brief }}</p>
+            {% else %}<p class="va-none">Vizual istiqamət yazılmayıb.</p>{% endif %}
+            {% endif %}
+          </div>
+          <div class="preview-copy">
+            <small>{{ current_workspace.name }} · {{ selected_asset.aspect_ratio }}</small>
+            <h2>{{ selected_asset.headline or selected_asset.title }}</h2>
+            <p>{{ selected_asset.caption or 'Caption hələ yazılmayıb.' }}</p>
+            {% if hashtags %}<p class="tags">{{ hashtags|join(' ') }}</p>{% endif %}
+          </div>
+        </article>
+        {% endif %}
+      {% elif not asset_missing %}
+      <div class="empty-studio"><b>İlk materialınızı yaradın.</b>Post, Story və Carousel preview-si burada görünəcək.</div>
+      {% endif %}
+    </main>
+  </div>
+</section>
+
+{% if selected_asset %}
+<section class="cs-tools">
+  {% if notice == 'approved' %}<p class="cs-notice">Bu material təsdiqlənib — üstünə yazmırıq. Yenidən yazmaq üçün əvvəlcə «Dəyişiklik tələb et» seçin.</p>{% endif %}
+  {% if notice == 'nobrief' %}<p class="cs-notice">Bu material brif saxlanmadan yaradılıb, ona görə yenidən yazıla bilmir. Yeni material yaradın.</p>{% endif %}
+  {% if notice == 'ig_published' %}<p class="cs-notice cs-notice-ok">Instagram-da dərc olundu ✓{% if selected_asset.instagram_permalink %} — <a href="{{ selected_asset.instagram_permalink }}" target="_blank" rel="noopener">posta bax →</a>{% endif %}</p>{% endif %}
+  {% if notice == 'ig_failed' %}<p class="cs-notice cs-notice-err">Instagram-a paylaşıla bilmədi — Meta API xəta qaytardı. Bir az sonra yenidən cəhd edin.</p>{% endif %}
+  {% if notice == 'ig_not_approved' %}<p class="cs-notice cs-notice-err">Paylaşımdan əvvəl materialı «Təsdiqlə» ilə təsdiqləyin.</p>{% endif %}
+  {% if notice == 'ig_no_public_url' %}<p class="cs-notice cs-notice-err">Video ictimai ünvandan əlçatan deyil (tunel bağlıdır). PUBLIC_MEDIA_BASE_URL-i yoxlayın.</p>{% endif %}
+  {% if notice == 'ig_disabled' %}<p class="cs-notice cs-notice-err">Xarici paylaşım söndürülüb (SOCIAL_PUBLISH_ENABLED).</p>{% endif %}
+  {% if notice == 'ig_already' %}<p class="cs-notice">Bu material artıq Instagram-a paylaşılıb.</p>{% endif %}
+  {% if notice == 'tt_published' %}<p class="cs-notice cs-notice-ok">TikTok-a dərc olundu ✓ — profildən yoxlayın.</p>{% endif %}
+  {% if notice == 'tt_failed' %}<p class="cs-notice cs-notice-err">TikTok-a paylaşıla bilmədi — API xəta qaytardı. Bir az sonra yenidən cəhd edin.</p>{% endif %}
+  {% if notice == 'tt_not_approved' %}<p class="cs-notice cs-notice-err">Paylaşımdan əvvəl materialı «Təsdiqlə» ilə təsdiqləyin.</p>{% endif %}
+  {% if notice == 'tt_no_public_url' %}<p class="cs-notice cs-notice-err">Video ictimai ünvandan əlçatan deyil (tunel bağlıdır). PUBLIC_MEDIA_BASE_URL-i yoxlayın.</p>{% endif %}
+  {% if notice == 'tt_disabled' %}<p class="cs-notice cs-notice-err">Xarici paylaşım söndürülüb (SOCIAL_PUBLISH_ENABLED).</p>{% endif %}
+  {% if notice == 'tt_not_connected' %}<p class="cs-notice cs-notice-err">TikTok hesabı qoşulmayıb və ya token yenilənmədi — Brand Kit bölməsindən yenidən qoşun.</p>{% endif %}
+  {% if notice == 'tt_no_video' %}<p class="cs-notice cs-notice-err">TikTok yalnız video (Reel/Story) qəbul edir.</p>{% endif %}
+  {% if notice == 'tt_already' %}<p class="cs-notice">Bu material artıq TikTok-a paylaşılıb.</p>{% endif %}
+  {% if notice == 'sched_set' %}<p class="cs-notice cs-notice-ok">Planlaşdırıldı ✓ — göstərilən saatda avtomatik dərc olunacaq.</p>{% endif %}
+  {% if notice == 'sched_cancelled' %}<p class="cs-notice">Planlaşdırma ləğv edildi.</p>{% endif %}
+  {% if notice == 'sched_invalid' %}<p class="cs-notice cs-notice-err">Tarix/saat və ən azı bir platforma seçin.</p>{% endif %}
+  {% if notice == 'sched_past' %}<p class="cs-notice cs-notice-err">Seçilən vaxt artıq keçib — gələcək bir tarix/saat seçin.</p>{% endif %}
+  {% if notice == 'sched_not_approved' %}<p class="cs-notice cs-notice-err">Planlaşdırmadan əvvəl materialı «Təsdiqlə» ilə təsdiqləyin.</p>{% endif %}
+  {% if notice == 'sched_platform_unavailable' %}<p class="cs-notice cs-notice-err">Seçdiyiniz platformalardan biri hazır deyil (hesab qoşulmayıb və ya format uyğun deyil).</p>{% endif %}
+
+  {% if selected_asset.status == 'NEEDS_INPUT' or needs_input %}
+  <div class="needs-box">
+    <b>Bu material üçün məlumat lazımdır</b>
+    <ul>{% for item in needs_input %}<li>{{ item }}</li>{% endfor %}</ul>
+    <p style="margin:8px 0 0;font-size:10px;color:#9a8f7d">Sistem çatışmayan yeri uydurmur. Məlumatı «Nə doğrudur?» sahəsinə yazıb yenidən cəhd edin.</p>
+  </div>
+  {% endif %}
+
+  <div style="display:flex;justify-content:space-between;gap:20px;align-items:start;flex-wrap:wrap">
+    <div>
+      <span class="lbl">REVIEW FLOW</span>
+      <h2 style="font:400 23px var(--font-serif,Georgia,serif);margin:8px 0">Status: {{ selected_asset.status }}{% if selected_asset.confidence == 'low' %} · aşağı etibar{% endif %}</h2>
+      {% if selected_asset.campaign_day %}
+      <a class="source-day" href="/campaigns?id={{ selected_asset.campaign_day.campaign_id }}">MƏNBƏ: <b>{{ selected_asset.campaign_day.campaign.name }}</b> · Gün {{ selected_asset.campaign_day.day_number }} · {{ selected_asset.campaign_day.platform }} — təqvim statusu: {{ selected_asset.campaign_day.status }}</a>
+      <div class="day-nav">
+        {% if prev_day %}
+        <form method="post" action="/campaigns/day/{{ prev_day.id }}/to-asset"><button type="submit">◀ Gün {{ prev_day.day_number }}</button></form>
+        {% else %}<span class="day-nav-stub"></span>{% endif %}
+        {% if next_day %}
+        <form method="post" action="/campaigns/day/{{ next_day.id }}/to-asset"><button type="submit">Gün {{ next_day.day_number }} ▶</button></form>
+        {% endif %}
+      </div>
+      {% else %}
+      <span class="source-day source-broken">MƏNBƏ: plan günü silinib — bu material arxivdə saxlanılır</span>
+      {% endif %}
+    </div>
+    <form method="post" action="/content-studio/{{ selected_asset.id }}/review" style="display:flex;gap:8px;flex-wrap:wrap;flex:1;justify-content:flex-end">
+      <input name="feedback" maxlength="2000" placeholder="Rəy və ya dəyişiklik qeydi" style="min-width:280px;flex:1;padding:11px;background:#0a0806;border:1px solid #352b21;color:#e7ddce">
+      <button name="decision" value="CHANGES_REQUESTED" style="padding:11px 14px;background:transparent;border:1px solid #8e5d51;color:#d4a49a">Dəyişiklik tələb et</button>
+      <button name="decision" value="APPROVED" style="padding:11px 14px;background:#78916b;border:0;color:#f2eee6">Təsdiqlə</button>
+    </form>
+  </div>
+
+  {% set ig_ready = (selected_asset.format in ('REEL', 'STORY') and selected_asset.video_url) or (selected_asset.format == 'POST' and selected_asset.image_url) %}
+  {% if ig_ready %}
+  <div class="ig-publish{% if selected_asset.instagram_published %} is-done{% endif %}">
+    <div>
+      <b>{% if selected_asset.format == 'REEL' %}Instagram Reel{% elif selected_asset.format == 'STORY' %}Instagram Story{% else %}Instagram Post{% endif %}</b>
+      {% if selected_asset.instagram_published %}
+      <p>Bu material artıq paylaşılıb.{% if selected_asset.instagram_permalink %} <a href="{{ selected_asset.instagram_permalink }}" target="_blank" rel="noopener" style="color:#d4b978">Posta bax →</a>{% endif %}</p>
+      {% elif not instagram_available %}
+      <p>Bu workspace-in Instagram hesabı qoşulmayıb — Brand Kit bölməsindən qoşun.</p>
+      {% elif selected_asset.status != 'APPROVED' %}
+      <p>Paylaşımdan əvvəl yuxarıda «Təsdiqlə» seçin. Bu addım geri alınmır.</p>
+      {% else %}
+      <p>Material hazırdır və hesab qoşulub. Dərc etmə geri alınmır — bir dəfə basılır.</p>
+      {% endif %}
+    </div>
+    <form method="post" action="/content-studio/{{ selected_asset.id }}/publish-instagram">
+      <button type="submit" {% if selected_asset.instagram_published or not instagram_available or selected_asset.status != 'APPROVED' or not social_publish_enabled %}disabled{% endif %}>
+        {% if selected_asset.instagram_published %}Paylaşıldı ✓{% else %}📸 Instagram-da paylaş{% endif %}
+      </button>
+    </form>
+  </div>
+  {% endif %}
+
+  {% set tt_ready = selected_asset.format in ('REEL', 'STORY') and selected_asset.video_url %}
+  {% if tt_ready %}
+  <div class="ig-publish{% if selected_asset.tiktok_published %} is-done{% endif %}">
+    <div>
+      <b>TikTok</b>
+      {% if selected_asset.tiktok_published %}
+      <p>Bu material artıq TikTok-a paylaşılıb.</p>
+      {% elif not tiktok_available %}
+      <p>Bu workspace-in TikTok hesabı qoşulmayıb — Brand Kit bölməsindən qoşun.</p>
+      {% elif selected_asset.status != 'APPROVED' %}
+      <p>Paylaşımdan əvvəl yuxarıda «Təsdiqlə» seçin. Bu addım geri alınmır.</p>
+      {% else %}
+      <p>Material hazırdır və hesab qoşulub. Dərc etmə geri alınmır — bir dəfə basılır.</p>
+      {% endif %}
+    </div>
+    <form method="post" action="/content-studio/{{ selected_asset.id }}/publish-tiktok">
+      <button type="submit" {% if selected_asset.tiktok_published or not tiktok_available or selected_asset.status != 'APPROVED' or not social_publish_enabled %}disabled{% endif %}>
+        {% if selected_asset.tiktok_published %}Paylaşıldı ✓{% else %}🎵 TikTok-da paylaş{% endif %}
+      </button>
+    </form>
+  </div>
+  {% endif %}
+
+  {% if ig_ready or tt_ready %}
+  <div class="ig-publish" style="flex-direction:column;align-items:stretch;gap:14px">
+    <div>
+      <b>Planlaşdırılmış paylaşım</b>
+      {% if selected_asset.schedule_error %}<p style="color:#d4a49a">Son cəhd uğursuz oldu: {{ selected_asset.schedule_error }}</p>{% endif %}
+      {% if selected_asset.scheduled_at %}
+      <p>Planlaşdırılıb: <b>{{ scheduled_at_baku.strftime('%d.%m.%Y %H:%M') }}</b> (Bakı vaxtı) — {{ selected_asset.scheduled_platforms|replace('instagram','Instagram')|replace('tiktok','TikTok')|replace(',', ', ') }}</p>
+      {% elif selected_asset.status == 'APPROVED' %}
+      <p>Materialı gələcək bir tarix/saata təyin edin — həmin an TikTok/Instagram-a avtomatik dərc olunacaq.</p>
+      {% else %}
+      <p>Planlaşdırmadan əvvəl materialı yuxarıda «Təsdiqlə» ilə təsdiqləyin.</p>
+      {% endif %}
+    </div>
+    {% if selected_asset.scheduled_at %}
+    <form method="post" action="/content-studio/{{ selected_asset.id }}/schedule/cancel">
+      <button type="submit" style="padding:11px 16px;background:transparent;border:1px solid #8e5d51;color:#d4a49a">Planlaşdırmanı ləğv et</button>
+    </form>
+    {% elif selected_asset.status == 'APPROVED' %}
+    <form method="post" action="/content-studio/{{ selected_asset.id }}/schedule" style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+      <input type="datetime-local" name="scheduled_at" required style="padding:11px;background:#0a0806;border:1px solid #352b21;color:#e7ddce">
+      <label style="display:flex;gap:6px;align-items:center;font-size:11px;color:#c3b89f">
+        <input type="checkbox" name="platforms" value="instagram" style="width:auto" {% if not ig_ready or not instagram_available or selected_asset.instagram_published %}disabled{% else %}checked{% endif %}> Instagram
+      </label>
+      <label style="display:flex;gap:6px;align-items:center;font-size:11px;color:#c3b89f">
+        <input type="checkbox" name="platforms" value="tiktok" style="width:auto" {% if not tt_ready or not tiktok_available or selected_asset.tiktok_published %}disabled{% else %}checked{% endif %}> TikTok
+      </label>
+      <button type="submit" style="padding:11px 16px;background:#d4b978;border:0;color:#161008;font-weight:700">Planlaşdır</button>
+    </form>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if headline_options %}
+  <h3 style="margin-top:22px">Başlıq variantları</h3>
+  <div class="headline-opts">
+    {% for option in headline_options %}
+    <form method="post" action="/content-studio/{{ selected_asset.id }}/headline" style="flex:1 1 240px;display:flex">
+      <input type="hidden" name="headline" value="{{ option }}">
+      <button type="submit" class="{% if option == selected_asset.headline %}chosen{% endif %}">{{ option }}</button>
+    </form>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if selected_asset.brief_json %}
+  <h3>Yenidən yaz</h3>
+  <div class="delta-row">
+    {% for key, item in deltas.items() %}
+    <form method="post" action="/content-studio/{{ selected_asset.id }}/regenerate" style="display:inline">
+      <input type="hidden" name="delta" value="{{ key }}">
+      <button type="submit" title="{{ item[1] }}">{{ item[0] }}</button>
+    </form>
+    {% endfor %}
+  </div>
+  <form method="post" action="/content-studio/{{ selected_asset.id }}/regenerate" style="display:flex;gap:8px;flex-wrap:wrap">
+    <input name="instruction" maxlength="500" placeholder="Öz təlimatınız — boş buraxsanız son rəy istifadə olunur" style="min-width:300px;flex:1;padding:11px;background:#0a0806;border:1px solid #352b21;color:#e7ddce">
+    <button type="submit" style="padding:11px 16px;background:#d4b978;border:0;color:#171008;font-weight:700">Yenidən yaz</button>
+  </form>
+  {% endif %}
+
+  {% if selected_asset.reviews %}
+  <div class="versions">
+    {% for review in selected_asset.reviews[:5] %}
+    <div><b>{{ review.decision }}</b> · {{ review.user.full_name }} · {{ review.created_at.strftime('%d.%m.%Y %H:%M') }}{% if review.feedback %} — {{ review.feedback }}{% endif %}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if selected_asset.versions %}
+  <div class="versions">
+    <span class="lbl">ARXİV — köhnə nüsxələr itmir</span>
+    {% for version in selected_asset.versions[:5] %}
+    <div><b>{{ version.reason or 'yenidən yaz' }}</b> · {{ version.created_at.strftime('%d.%m.%Y %H:%M') }} — {{ (version.headline or '—')[:70] }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</section>
+{% endif %}
+<section class="ml-outro"><video autoplay muted loop playsinline preload="none" aria-hidden="true" data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260325_125119_8e5ae31c-0021-4396-bc08-f7aebeb877a2.mp4"></video><h2>Növbəti fikrinə <em>yer aç.</em></h2><a href="#studioWorkbench">Yeni material yarat ↗</a></section>
+</div><script src="/static/studio-mindloop.js?v=1"></script>
+{% endblock %}

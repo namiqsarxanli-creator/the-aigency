@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Paketlər · The Aigency{% endblock %}
+{% block content %}
+<style>
+.pricing{max-width:1100px;margin:auto;padding:120px 5vw 80px;color:#eee7dc}
+.pricing .eyebrow{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:#b99a5b}
+.pricing h1{font:italic 52px/1.05 Georgia,serif;margin:12px 0 14px}
+.pricing .lede{max-width:660px;color:#9e978e;line-height:1.75;margin:0 0 40px}
+.pricing .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.pricing .card{background:linear-gradient(145deg,rgba(28,23,18,.96),rgba(11,9,7,.97));border:1px solid rgba(196,165,102,.2);padding:26px}
+.pricing .card.featured{border-color:#64742f;background:linear-gradient(145deg,rgba(30,34,20,.96),rgba(11,13,7,.97))}
+.pricing .card h2{font:21px Georgia,serif;margin:0 0 6px}
+.pricing .tag{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#b99a5b}
+.pricing .card.featured .tag{color:var(--acid)}
+.pricing ul{margin:16px 0 0;padding-left:18px;color:#b3aba0;font-size:13px;line-height:1.85}
+.pricing .note{margin-top:34px;padding:18px;border-left:2px solid #b99a5b;background:rgba(185,154,91,.07);color:#c4bdb3;font-size:13px;line-height:1.7}
+.pricing .steps{margin-top:14px;padding-left:18px;color:#b3aba0;font-size:13px;line-height:1.85}
+</style>
+<main class="pricing">
+  <div class="eyebrow">Paketlər</div>
+  <h1>Nə daxildir</h1>
+  <p class="lede">Əsas iş axını — brif, agent komandası, təsdiq və materialların təhvili —
+     hər workspace üçün əlçatandır. Xarici hesablara avtomatik dərc ayrıca paketdir, çünki
+     hər müştərinin öz hesabının qoşulmasını və kvotasını tələb edir.</p>
+
+  <div class="cards">
+    <article class="card">
+      <span class="tag">Əsas</span>
+      <h2>Studiya</h2>
+      <ul>
+        <li>Brif → 10 agentlik komanda → hazır nəticə</li>
+        <li>Departament hesabatlarını ayrıca yenidən yazdırmaq</li>
+        <li>Versiya tarixçəsi və müqayisə</li>
+        <li>Müştəriyə paylaşım linki</li>
+        <li>PDF hesabat və ZIP arxiv</li>
+        <li>Kampaniya planı, kontent təqvimi, analitika</li>
+      </ul>
+    </article>
+
+    <article class="card featured" id="instagram">
+      <span class="tag">Əlavə paket</span>
+      <h2>Instagram-a avtomatik dərc</h2>
+      <ul>
+        <li>Öz Instagram hesabınızın qoşulması</li>
+        <li>Təsdiqlədiyiniz postun birbaşa dərci — əl ilə köçürmək lazım deyil</li>
+        <li>Dərc olunmuş postun linki layihə kartında saxlanılır</li>
+        <li>Təkrar dərcin qarşısı avtomatik alınır</li>
+      </ul>
+      <div class="note" style="margin-top:20px">
+        <b>Texniki şərtlər</b> — bunlar bizdən yox, Meta-dan gəlir:
+        <ol class="steps">
+          <li>Instagram hesabı <b>Business</b> və ya <b>Creator</b> olmalıdır; adi şəxsi hesab
+              Meta-nın API-si ilə dərc edə bilmir.</li>
+          <li>Hesab qoşulduqdan sonra giriş açarı müəyyən müddətdən sonra yenilənməlidir.</li>
+          <li>Dərc yalnız sizin açıq təsdiqinizlə baş verir — sistem öz-özünə paylaşmır.</li>
+        </ol>
+      </div>
+    </article>
+  </div>
+
+  <p class="note">
+    Instagram paketi aktiv olmayan workspace-lərdə paylaşım düyməsi <b>qəsdən göstərilmir</b>:
+    hesab qoşulmadan həmin düymə heç nə edə bilməzdi. Paket aktivləşən kimi düymə
+    nəticə panelində özü peyda olur.
+  </p>
+</main>
+{% endblock %}

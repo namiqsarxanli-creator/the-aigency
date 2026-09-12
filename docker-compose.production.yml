@@ -1,0 +1,57 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: agency
+      POSTGRES_USER: agency
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes: [agency_pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agency -d agency"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+  redis:
+    image: redis:7.4-alpine
+    command: redis-server --appendonly yes
+    volumes: [agency_redis:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
+  web:
+    build: .
+    env_file: .env
+    environment: &agency-env
+      DATABASE_URL: postgresql+psycopg://agency:${POSTGRES_PASSWORD}@postgres:5432/agency
+      REDIS_URL: redis://redis:6379/0
+      WORKER_MODE: celery
+    ports: ["8800:8800"]
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    restart: unless-stopped
+  worker:
+    build: .
+    command: celery -A app.celery_app:celery_app worker --loglevel=INFO --concurrency=2
+    env_file: .env
+    environment: *agency-env
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    restart: unless-stopped
+  beat:
+    build: .
+    command: celery -A app.celery_app:celery_app beat --loglevel=INFO
+    env_file: .env
+    environment: *agency-env
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    restart: unless-stopped
+volumes:
+  agency_pgdata:
+  agency_redis:

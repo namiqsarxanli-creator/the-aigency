@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="az">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}The Aigency — AI Agent Company{% endblock %}</title>
+  <meta name="description" content="AI agentlərindən ibarət avtonom yaradıcı komanda: bir brif verin, CEO, Strateq, Kopirayter, Dizayner, Developer və QA agentləri canlı işləyib nəticə çıxarsın.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/agency.css?v=20260908-1">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2226%22 fill=%22%230d1016%22/><path d=%22M25 68V32l25-12 25 12v36H25Zm12-9h8V44h-8v15Zm18 0h8V38h-8v21Z%22 fill=%22%23d8ff5f%22/></svg>">
+</head>
+<body>
+  <div class="intro-curtain" aria-hidden="true"><span>THE AIGENCY</span><i></i></div>
+  <nav class="topnav liquid-glass">
+    <a class="brand" href="/">
+      <span class="brand-mark"><i></i><i></i><i></i></span>
+      <span>The Aigency<small>Autonomous studio</small></span>
+    </a>
+    <div class="nav-links">
+      {% if current_workspace %}<span class="workspace-pill"><i>{{ current_workspace.name[:1]|upper }}</i>{{ current_workspace.name }}</span>{% endif %}
+      <a class="nav-anchor" href="/#studio">Studio</a>
+      <a class="nav-anchor" href="/#briefRoom">Brif</a>
+      {% if current_user %}<a class="nav-anchor" href="/brand-kit">Brand Kit</a>{% endif %}
+      {% if current_user %}<a class="nav-anchor" href="/campaigns">Kampaniyalar</a>{% endif %}
+      {% if current_user %}<a class="nav-anchor" href="/calendar">Təqvim</a>{% endif %}
+      {% if current_user %}<a class="nav-anchor" href="/content-studio">Studio+</a>{% endif %}
+      {% if current_user %}<a class="nav-anchor" href="/analytics">Analitika</a>{% endif %}
+      {% if current_user %}<a class="nav-anchor" href="/approvals">Təsdiqlər</a>{% endif %}
+      {% set platform_owner = current_workspace and current_workspace.slug == 'legacy' and membership and membership.role in ['owner','admin','presenter'] %}
+      {% if platform_owner %}<a class="nav-anchor" href="/sales">Satış CRM</a>{% endif %}
+      {% if platform_owner %}<a class="nav-anchor" href="/control-room">Control Room</a>{% endif %}
+      <span class="system-status"><i></i> Sistem aktivdir</span>
+      <span class="nav-divider"></span>
+      <button class="nav-menu-btn" id="menuToggleBtn" type="button" aria-label="Menyu"><span>Menu</span><i class="menu-dots"><i></i><i></i><i></i><i></i></i></button>
+      {% if current_user %}
+        <form class="logout-form" method="post" action="/logout"><button type="submit" title="Çıxış">{{ current_user.full_name[:1]|upper }} <span>Çıxış</span></button></form>
+      {% else %}<span class="tagline">Bakı · AZ</span>{% endif %}
+    </div>
+  </nav>
+
+  <!-- Global Gallery & Platform Drawer Modal -->
+  <div class="gallery-menu-drawer" id="galleryMenuDrawer" aria-hidden="true">
+    <div class="drawer-backdrop" id="drawerBackdrop"></div>
+    <div class="drawer-panel">
+      <div class="drawer-head">
+        <div class="drawer-brand">
+          <span class="brand-mark"><i></i><i></i><i></i></span>
+          <div><b>The Aigency</b><small>Autonomous Studio & Gallery OS</small></div>
+        </div>
+        <button class="drawer-close" id="drawerCloseBtn" type="button">✕</button>
+      </div>
+      <div class="drawer-content">
+        <div class="drawer-section">
+          <span class="drawer-label">Sərgi və İcra Zalları</span>
+          <div class="drawer-grid">
+            <a class="drawer-card" href="/#studio"><small>00</small><b>Muzey 3D Sarayı</b><span>Klassik şah əsərlər və 3D dərinlik</span></a>
+            <a class="drawer-card" href="/#briefRoom"><small>01</small><b>Brif Otağı</b><span>AI şirkətinə tapşırıq verin</span></a>
+            <a class="drawer-card" href="/#teamRoom"><small>02</small><b>Agentlər Qalereyası</b><span>9 ixtisaslaşmış agent</span></a>
+            <a class="drawer-card" href="/#operationsRoom"><small>03</small><b>İdarəetmə Lövhəsi</b><span>Canlı lent və Kanban tapşırıqları</span></a>
+          </div>
+        </div>
+        <div class="drawer-section">
+          <span class="drawer-label">Brend və Kampaniya Əməliyyatları</span>
+          <div class="drawer-grid">
+            <a class="drawer-card" href="/brand-kit"><small>BK</small><b>Brand Memory</b><span>Səs tonu, loqo, rənglər və qaydalar</span></a>
+            <a class="drawer-card" href="/campaigns"><small>7D</small><b>7 Günlük Kampaniyalar</b><span>Strateji artım və hədəf xəritəsi</span></a>
+            <a class="drawer-card" href="/calendar"><small>CAL</small><b>Kontent Təqvimi</b><span>Həftəlik planlaşdırma və statuslar</span></a>
+            <a class="drawer-card" href="/content-studio"><small>CS</small><b>Content Studio+</b><span>Post, Story, Reel, Carousel preview</span></a>
+          </div>
+        </div>
+        {% if platform_owner %}
+        <div class="drawer-section">
+          <span class="drawer-label">Biznes və Nəzarət Mərkəzi</span>
+          <div class="drawer-grid">
+            <a class="drawer-card" href="/analytics"><small>AN</small><b>Analitika Qərar Zalı</b><span>CTR, ROAS və çatım qrafikləri</span></a>
+            <a class="drawer-card" href="/approvals"><small>OK</small><b>Təsdiq Mərkəzi</b><span>Daxili yoxlama və nəticə filtri</span></a>
+            <a class="drawer-card" href="/sales"><small>CRM</small><b>Satış Fabriki & Lead-lər</b><span>Avtomatik kəşfiyyat və audit</span></a>
+            <a class="drawer-card" href="/control-room"><small>CR</small><b>Control Room</b><span>Növbələr, büdcə və təhlükəsizlik</span></a>
+            <a class="drawer-card" href="/usage"><small>LLM</small><b>Token & Xərc Paneli</b><span>AI provayder statistikası</span></a>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      <div class="drawer-footer">
+        <span>The Aigency · 2026</span>
+        <span>40.4093° N · Bakı</span>
+      </div>
+    </div>
+  </div>
+
+  <main class="shell">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer liquid-glass">
+    <span>© 2026 The Aigency</span>
+    {% if contact_phone or contact_email %}
+    <span class="footer-contact">
+      {% if contact_phone %}<a href="{{ contact_phone_href }}">📞 {{ contact_phone }}</a>{% endif %}
+      {% if contact_email %}<a href="mailto:{{ contact_email }}">✉️ {{ contact_email }}</a>{% endif %}
+      {% if contact_hours %}<small>{{ contact_hours }}</small>{% endif %}
+    </span>
+    {% endif %}
+    <span>Strategiya, dizayn və texnologiya — vahid avtonom sistemdə.</span>
+  </footer>
+
+  <script>
+  (function () {
+    var curtain = document.querySelector('.intro-curtain');
+    if (!curtain) return;
+    function dismiss() { if (curtain && curtain.parentNode) curtain.parentNode.removeChild(curtain); }
+    var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) { dismiss(); return; }
+    // TƏK mexanizm: `transitionend` çıxışı idarə edir, `setTimeout` YALNIZ ehtiyat üçündür
+    // (məs. tab arxa planda olub `transition` fasilə verərsə) — əvvəlki versiyada bu ikisi
+    // `animationend` ilə yarışırdı, nəticədə sürüşmə bəzən "sıçrayış" kimi görünürdü.
+    curtain.addEventListener('transitionend', dismiss);
+    setTimeout(function () { curtain.classList.add('is-leaving'); }, 600);
+    setTimeout(dismiss, 2600);
+  })();
+
+  // Global smooth navigation handler delegation to Drone Fly Engine
+  document.addEventListener('click', function (e) {
+    var link = e.target.closest ? e.target.closest('a[href^="/#"], a[href^="#"]') : null;
+    if (!link) return;
+    var href = link.getAttribute('href');
+    var hashIndex = href.indexOf('#');
+    if (hashIndex === -1) return;
+    var id = href.slice(hashIndex + 1);
+    if (!id) return;
+    var target = document.getElementById(id);
+    if (!target) return;
+    e.preventDefault();
+    if (window.droneFlyTo) {
+      window.droneFlyTo(id);
+    } else {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+  </script>
+
+  {% if current_user %}<script src="/static/brief-assistant.js?v=20260821-1"></script>{% endif %}
+  {% if platform_owner %}<script src="/static/call-fab.js?v=1"></script>{% endif %}
+  <!-- Fon videolarını ekrana yaxınlaşanda yükləyir — bax lazy-video.js-dəki izah. -->
+  <script src="/static/lazy-video.js?v=1" defer></script>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Aysel ilə danışıq — Twilio-suz</title>
+<style>
+  :root { color-scheme: light }
+  body { font-family: system-ui; margin: 40px; max-width: 720px; background: #fff; color: #111 }
+  button { padding: 12px 22px; font-size: 15px; border-radius: 8px; border: 1px solid #111;
+           background: #111; color: #fff; cursor: pointer }
+  button.stop { background: #b3261e; border-color: #b3261e }
+  button:disabled { opacity: .45; cursor: default }
+  #log { margin-top: 22px; border: 1px solid #ddd; border-radius: 8px; padding: 16px;
+         min-height: 240px; max-height: 460px; overflow-y: auto; font-size: 15px; line-height: 1.6 }
+  .ai { color: #0b5cad } .me { color: #146c2e; font-weight: 500 } .sys { color: #888; font-size: 13px }
+  .warn { background: #fff8e1; border: 1px solid #f0d68a; padding: 12px; border-radius: 8px }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #bbb;
+         margin: 0 6px 0 14px }
+  .dot.on { background: #1e9e4a }
+</style>
+
+<h1>Aysel ilə danışıq</h1>
+<p>Kompüterin <b>öz mikrofonu və dinamiki</b> ilə işləyir — brauzer icazəsi lazım deyil,
+Twilio-ya heç bir sorğu getmir. Yalnız OpenAI Realtime səs haqqı işləyir. Agent, satış
+skripti və görüş təyin etmə funksiyaları real zənglə eynidir.</p>
+
+<p class="warn">Aysel danışarkən mikrofon avtomatik susdurulur (dinamikdən çıxan səsi geri
+tutmasın deyə) — <b>cümləsi bitəndən sonra danışın</b>. Qulaqlıq taxsanız bu məhdudiyyəti
+götürmək olar.</p>
+
+<p>
+  <button id="start">Danışığı başlat</button>
+  <button id="stop" class="stop" disabled>Bitir</button>
+  <span><span class="dot"></span><span id="stateText">bağlı</span></span>
+</p>
+
+<div id="log"></div>
+
+<script>
+const logBox = document.getElementById('log');
+let callId = null, poller = null, shown = 0;
+
+function log(text, cls) {
+  const line = document.createElement('div');
+  line.className = cls || 'sys';
+  line.textContent = text;
+  logBox.appendChild(line);
+  logBox.scrollTop = logBox.scrollHeight;
+}
+
+function setLive(on, text) {
+  document.querySelector('.dot').classList.toggle('on', on);
+  document.getElementById('stateText').textContent = text;
+  document.getElementById('start').disabled = on;
+  document.getElementById('stop').disabled = !on;
+}
+
+async function poll() {
+  if (!callId) return;
+  const r = await fetch('/voice-demo/mic/transcript?call_id=' + callId);
+  if (!r.ok) return;
+  const body = await r.json();
+  body.lines.slice(shown).forEach(line => log(line, line.startsWith('AI:') ? 'ai' : 'me'));
+  shown = body.lines.length;
+  if (!body.running) { stopUi(); log('Danışıq bitdi.'); }
+}
+
+function stopUi() {
+  if (poller) { clearInterval(poller); poller = null; }
+  setLive(false, 'bağlı');
+}
+
+document.getElementById('start').onclick = async () => {
+  logBox.innerHTML = ''; shown = 0;
+  setLive(true, 'başladılır…');
+  const r = await fetch('/voice-demo/mic/start', { method: 'POST' });
+  const body = await r.json();
+  if (!r.ok) { log('Xəta: ' + (body.detail || 'naməlum')); setLive(false, 'bağlı'); return; }
+  callId = body.call_id;
+  setLive(true, 'danışıq gedir — Aysel indi danışacaq');
+  log('Mikrofon açıldı. Aysel bir neçə saniyəyə danışmağa başlayacaq…');
+  poller = setInterval(poll, 1000);
+};
+
+document.getElementById('stop').onclick = async () => {
+  await fetch('/voice-demo/mic/stop', { method: 'POST' });
+  stopUi();
+};
+</script>

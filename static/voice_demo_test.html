@@ -1,0 +1,206 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Zəng sınağı — Twilio-suz</title>
+<style>
+  :root { color-scheme: light }
+  body { font-family: system-ui; margin: 40px; max-width: 720px; background: #fff; color: #111 }
+  button { padding: 10px 18px; font-size: 15px; border-radius: 8px; border: 1px solid #111;
+           background: #111; color: #fff; cursor: pointer }
+  button.stop { background: #b3261e; border-color: #b3261e }
+  button:disabled { opacity: .45; cursor: default }
+  #log { margin-top: 24px; border: 1px solid #ddd; border-radius: 8px; padding: 14px;
+         min-height: 200px; max-height: 420px; overflow-y: auto; font-size: 14px; line-height: 1.5 }
+  .ai { color: #0b5cad } .me { color: #146c2e } .sys { color: #777; font-size: 13px }
+  .warn { background: #fff8e1; border: 1px solid #f0d68a; padding: 12px; border-radius: 8px }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #bbb;
+         margin-right: 6px }
+  .dot.on { background: #1e9e4a }
+</style>
+
+<h1>Zəng sınağı — Twilio-suz</h1>
+<p>Mikrofonunuz Twilio-nun yerini tutur. <b>Twilio-ya heç bir sorğu getmir, sıfır xərc</b> —
+yalnız OpenAI Realtime səs haqqı işləyir. Server, agent (Aysel) və görüş yazılması real
+zənglə tam eynidir — bax <code>app/voice_pitch.py</code>.</p>
+
+<p class="warn">Dinamikdən danışmaq üçün nəzərdə tutulub (qulaqlıq lazım deyil) — brauzerin exo-ləğvi
+AI-ın öz səsini mikrofon siqnalından çıxarır. Otaq çox səs-küylü olsa yenə də bəzən özünü
+kəsə bilər — belə olarsa qulaqlığa keçin.</p>
+
+<p>
+  <button id="start">Danışığı başlat</button>
+  <button id="stop" class="stop" disabled>Bitir</button>
+  <span id="state"><span class="dot"></span><span id="stateText">bağlı</span></span>
+</p>
+
+<div id="log"></div>
+
+<script>
+const SAMPLE_RATE = 8000;
+const logBox = document.getElementById('log');
+let ws, audioCtx, micStream, processor, playHead = 0, playing = [], callToken = null;
+let outputDest, outputEl;
+
+function log(text, cls) {
+  const line = document.createElement('div');
+  line.className = cls || 'sys';
+  line.textContent = text;
+  logBox.appendChild(line);
+  logBox.scrollTop = logBox.scrollHeight;
+}
+
+function setLive(on, text) {
+  document.querySelector('.dot').classList.toggle('on', on);
+  document.getElementById('stateText').textContent = text;
+  document.getElementById('start').disabled = on;
+  document.getElementById('stop').disabled = !on;
+}
+
+// --- G.711 mu-law kodlama/dekodlama (telefon standartı, Twilio-nun istifadə etdiyi) ---
+function toMulaw(sample) {
+  const BIAS = 0x84, CLIP = 32635;
+  let sign = (sample >> 8) & 0x80;
+  if (sign) sample = -sample;
+  if (sample > CLIP) sample = CLIP;
+  sample += BIAS;
+  let exponent = 7;
+  for (let mask = 0x4000; (sample & mask) === 0 && exponent > 0; exponent--, mask >>= 1);
+  const mantissa = (sample >> (exponent + 3)) & 0x0f;
+  return ~(sign | (exponent << 4) | mantissa) & 0xff;
+}
+
+function fromMulaw(byte) {
+  byte = ~byte & 0xff;
+  const sign = byte & 0x80, exponent = (byte >> 4) & 0x07, mantissa = byte & 0x0f;
+  let sample = ((mantissa << 3) + 0x84) << exponent;
+  sample -= 0x84;
+  return sign ? -sample : sample;
+}
+
+function playChunk(base64) {
+  const raw = atob(base64);
+  const buffer = audioCtx.createBuffer(1, raw.length, SAMPLE_RATE);
+  const channel = buffer.getChannelData(0);
+  for (let i = 0; i < raw.length; i++) channel[i] = fromMulaw(raw.charCodeAt(i)) / 32768;
+  const source = audioCtx.createBufferSource();
+  source.buffer = buffer;
+  // Qulaqliqsiz reciminde AI ozunu esitib kesmesin deye, ciхisi DUZ audioCtx.destination-a
+  // yox, <audio> elementine otururuq — brauzerin exo-legvi (AEC) yalniz <audio>/<video>
+  // elementinden gelen sesi mikrofon siqnalindan cixara bilir, xam Web Audio destination-u
+  // esas etibarile "gormur" (canli sinaqda mehz bu sebebden AI ozunu kesirdi).
+  source.connect(outputDest);
+  playHead = Math.max(playHead, audioCtx.currentTime + 0.05);
+  source.start(playHead);
+  playHead += buffer.duration;
+  playing.push(source);
+}
+
+function stopPlayback() {
+  playing.forEach(s => { try { s.stop(); } catch (e) {} });
+  playing = [];
+  playHead = 0;
+}
+
+async function start() {
+  // MIKROFON EN BIRINCI istenilir: brauzer getUserMedia-ni yalniz "istifadeci klikinden
+  // dogan" emel kimi qebul edir, ondan evvel `fetch`/`play()` kimi asinxron gozlemeler
+  // olsa klikin tesdiqi tukenir ve sorgu "Permission denied" ile qayidir (canli tapinti).
+  micStream = await navigator.mediaDevices.getUserMedia({
+    audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+  });
+
+  const tokenResp = await fetch('/voice-demo/test-token', { method: 'POST' });
+  if (!tokenResp.ok) { log('Token alınmadı — icazəniz varmı?'); cleanup(); return; }
+  callToken = (await tokenResp.json()).call_token;
+
+  audioCtx = new AudioContext();
+  await audioCtx.resume();
+
+  // AI-in sesini <audio> elementi ile calirig ki, yuxaridaki getUserMedia-nin
+  // echoCancellation-u onu mikrofon siqnalindan cixara bilsin (qulaqliqsiz rejim).
+  outputDest = audioCtx.createMediaStreamDestination();
+  outputEl = new Audio();
+  outputEl.srcObject = outputDest.stream;
+  outputEl.autoplay = true;
+  await outputEl.play().catch(() => {});
+
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  ws = new WebSocket(`${proto}://${location.host}/voice-demo/media-stream`);
+
+  ws.onopen = () => {
+    setLive(true, 'danışıq gedir');
+    log('Bağlantı açıldı, Aysel danışmağa başlayır…');
+    // Twilio-nun "start" hadisesini teqlid edirik ki, server eyni kodla islesin.
+    ws.send(JSON.stringify({
+      event: 'start',
+      start: { streamSid: 'TEST_STREAM', customParameters: { call_token: callToken } },
+    }));
+    pipeMic();
+  };
+
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data.event === 'media') playChunk(data.media.payload);
+    else if (data.event === 'clear') stopPlayback();
+  };
+
+  ws.onclose = async () => {
+    setLive(false, 'bağlı');
+    log('Bağlantı bağlandı.');
+    cleanup();
+    if (callToken) {
+      const r = await fetch('/voice-demo/test-transcript?call_token=' + callToken);
+      if (r.ok) {
+        const body = await r.json();
+        log('--- danışıq mətni ---');
+        (body.transcript || '(boş)').split('\n').forEach(line => {
+          log(line, line.startsWith('AI:') ? 'ai' : 'me');
+        });
+      }
+    }
+  };
+  ws.onerror = () => log('WebSocket xətası — server işləyirmi?');
+}
+
+function pipeMic() {
+  const source = audioCtx.createMediaStreamSource(micStream);
+  processor = audioCtx.createScriptProcessor(2048, 1, 1);
+  const ratio = audioCtx.sampleRate / SAMPLE_RATE;
+  let timestamp = 0;
+
+  processor.onaudioprocess = (event) => {
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    const input = event.inputBuffer.getChannelData(0);
+    const out = new Uint8Array(Math.floor(input.length / ratio));
+    for (let i = 0; i < out.length; i++) {
+      const sample = Math.max(-1, Math.min(1, input[Math.floor(i * ratio)]));
+      out[i] = toMulaw(sample * 32767);
+    }
+    let binary = '';
+    out.forEach(b => binary += String.fromCharCode(b));
+    timestamp += Math.round(out.length / SAMPLE_RATE * 1000);
+    ws.send(JSON.stringify({
+      event: 'media',
+      media: { timestamp: String(timestamp), payload: btoa(binary) },
+    }));
+  };
+  source.connect(processor);
+  processor.connect(audioCtx.destination);
+}
+
+function cleanup() {
+  if (processor) { processor.disconnect(); processor = null; }
+  if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+  if (outputEl) { outputEl.pause(); outputEl.srcObject = null; outputEl = null; }
+  stopPlayback();
+}
+
+function stop() {
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ event: 'stop' }));
+    ws.close();
+  }
+}
+
+document.getElementById('start').onclick = () => start().catch(e => log('Xəta: ' + e.message));
+document.getElementById('stop').onclick = stop;
+</script>

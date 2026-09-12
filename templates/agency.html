@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+{% block content %}
+
+  {% set platform_owner = current_workspace and current_workspace.slug == 'legacy' and membership and membership.role in ['owner','admin','presenter'] %}
+  {% if not platform_owner %}
+  <style>
+    /* Müştəri nəticəni və iş vermə səthini görür; agent orkestri və daxili icra lövhəsi gizlidir. */
+    .room-team,.room-operations,.room-brief>.room-next{display:none!important}
+  </style>
+  {% endif %}
+
+  <header class="palace-hero camera-flow-hero" id="studio">
+    <!-- 3D Camera Flow Viewport (Continuous cinematic tracking shot) -->
+    <div class="camera-stream-viewport" id="cameraStreamViewport">
+      <!-- 3D Camera Rig -->
+      <div class="camera-rig" id="cameraRig">
+        <!-- Scene 1: Grand Museum Corridor (The School of Athens on wall + 3 visitors) -->
+        <div class="camera-scene scene-corridor" id="sceneAthensCorridor">
+          <img src="/static/museum_corridor.jpg" alt="" class="scene-backdrop" draggable="false">
+          <!-- 3 Visitor Silhouettes looking up at the painting -->
+          <div class="visitor-silhouettes" id="visitorSilhouettes">
+            <svg viewBox="0 0 500 240" class="visitors-svg" aria-hidden="true">
+              <g class="visitor visitor-1" transform="translate(178, 28)">
+                <ellipse cx="25" cy="22" rx="7" ry="9" fill="#080604"/>
+                <path d="M15 36 C15 30, 35 30, 35 36 L38 115 L30 195 L26 195 L24 125 L22 195 L18 195 L12 115 Z" fill="#080604"/>
+                <ellipse cx="25" cy="197" rx="18" ry="4" fill="rgba(0,0,0,0.6)" filter="blur(3px)"/>
+              </g>
+              <g class="visitor visitor-2 center-visitor" transform="translate(238, 14)">
+                <ellipse cx="25" cy="20" rx="8.5" ry="10.5" fill="#050403"/>
+                <path d="M13 34 C13 28, 37 28, 37 34 L40 120 L32 208 L28 208 L25 132 L22 208 L18 208 L10 120 Z" fill="#050403"/>
+                <ellipse cx="25" cy="210" rx="22" ry="5" fill="rgba(0,0,0,0.7)" filter="blur(3px)"/>
+              </g>
+              <g class="visitor visitor-3" transform="translate(298, 30)">
+                <ellipse cx="25" cy="22" rx="7" ry="9" fill="#080604"/>
+                <path d="M16 36 C16 30, 34 30, 34 36 L36 112 L30 190 L27 190 L25 120 L23 190 L20 190 L14 112 Z" fill="#080604"/>
+                <ellipse cx="25" cy="192" rx="16" ry="4" fill="rgba(0,0,0,0.6)" filter="blur(3px)"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Scene 2: Inside Painting (The School of Athens Full High-Res Canvas) -->
+        <div class="camera-scene scene-painting" id="sceneAthensPainting">
+          <img src="/static/school_of_athens.jpg" alt="" class="scene-backdrop painting-backdrop" draggable="false">
+          <!-- Interactive figures hotspots -->
+          <div class="art-hotspot" style="left: 49%; top: 48%;">
+            <span class="hotspot-pulse"></span>
+            <div class="hotspot-card"><b>Platon & Aristotel</b><p>İdealizm və Empirizm — Qərb fəlsəfəsinin iki əsas sütunu.</p></div>
+          </div>
+          <div class="art-hotspot" style="left: 36%; top: 50%;">
+            <span class="hotspot-pulse"></span>
+            <div class="hotspot-card"><b>Sokrat</b><p>Dialektika və sual-cavab metodu.</p></div>
+          </div>
+        </div>
+
+        <!-- Scene 3: The Death of Socrates Gallery Room -->
+        <div class="camera-scene scene-socrates" id="sceneSocratesRoom">
+          <img src="/static/museum_socrates_room.jpg" alt="" class="scene-backdrop" draggable="false">
+        </div>
+
+        <!-- Scene 4: Inside Socrates Painting (Full High-Res Canvas) -->
+        <div class="camera-scene scene-socrates-painting" id="sceneSocratesPainting">
+          <img src="/static/death_of_socrates.jpg" alt="" class="scene-backdrop painting-backdrop" draggable="false">
+          <div class="art-hotspot" style="left: 54%; top: 52%;">
+            <span class="hotspot-pulse"></span>
+            <div class="hotspot-card"><b>Sokratın Son Dərsi</b><p>Həqiqət və əqidə naminə kompromissiz seçim.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cinematic Camera Stream UI Overlay (Matches video 1:1) -->
+      <div class="camera-ui-overlay">
+        <!-- Top Left Brand Badge (OPUS) -->
+        <div class="top-opus-brand">OPUS</div>
+
+        <!-- Left Information Card -->
+        <div class="left-hero-card" id="leftHeroCard">
+          <div class="artwork-info-block active" id="cardAthens">
+            <h1 class="artwork-title">The School<br>of Athens</h1>
+            <p class="artwork-subtitle">Raphael's masterpiece, unchanged since 1511</p>
+            <div class="artwork-cta-wrap">
+              <button class="btn-video-glass" id="btnEnterGallery" type="button">
+                <span>Enter the Gallery</span><i>›</i>
+              </button>
+            </div>
+            <div class="artwork-tagline">Four Centuries, One Conversation</div>
+          </div>
+
+          <div class="artwork-info-block" id="cardSocrates">
+            <h1 class="artwork-title">The Death<br>of Socrates</h1>
+            <p class="artwork-subtitle">Jacques-Louis David's final lesson, 1787</p>
+            <div class="artwork-cta-wrap">
+              <button class="btn-video-glass" id="btnSocratesGallery" type="button">
+                <span>Enter the Gallery</span><i>›</i>
+              </button>
+            </div>
+            <div class="artwork-tagline">One Choice, No Regret</div>
+          </div>
+        </div>
+
+        <!-- Bottom 4-Column Metadata Stats Bar (Matches video 1:1) -->
+        <div class="bottom-stats-bar" id="bottomStatsBar">
+          <div class="stat-cell">
+            <span class="stat-number" id="streamStatYear">1511</span>
+            <span class="stat-label">Completed</span>
+          </div>
+          <div class="stat-cell">
+            <span class="stat-number" id="streamStatFigures">21</span>
+            <span class="stat-label">Figures Identified</span>
+          </div>
+          <div class="stat-cell">
+            <span class="stat-number" id="streamStatWidth">770 cm</span>
+            <span class="stat-label">Width</span>
+          </div>
+          <div class="stat-cell stat-cell-right">
+            <span class="stat-number">Free</span>
+            <span class="stat-label">Admission</span>
+          </div>
+        </div>
+
+        <!-- Scroll Flow Prompt -->
+        <a class="stream-scroll-indicator" href="#briefRoom" id="streamScrollCue">
+          <span>Brif otağına uçuş</span><i>↓</i>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <section class="room room-brief" id="briefRoom" data-room="brief">
+    <div class="room-scene" aria-hidden="true"></div>
+    <div class="room-architecture" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="room-caption"><span>II</span><small>BRİF OTAĞI</small></div>
+    <section class="panel brief-panel reveal" id="briefPanel">
+    <div class="panel-title brief-title"><div><span class="section-no">01 / BRİF</span><h2>Nə yaratmaq istəyirsiniz?</h2></div><span class="char-count">Maksimum 2,000 simvol</span></div>
+    <form id="briefForm" class="brief-form">
+      <textarea id="briefInput" rows="3" maxlength="2000"
+        placeholder="Məs: eko-dostu qəhvə brendi üçün launch kampaniyası — gənc, şəhər auditoriyası, minimalist üslub"></textarea>
+      <button id="briefSubmit" class="btn btn-solid" type="submit"><span>Şirkəti işə sal</span><b>↗</b></button>
+    </form>
+    <div class="projects-row">
+      <label><span>Arxivdən layihə seçin</span>
+        <select id="projectSelect"><option value="">— seçin —</option></select>
+      </label>
+    </div>
+    </section>
+    <a class="room-next" href="#teamRoom"><span>Komanda zalına keç</span><i>↓</i></a>
+  </section>
+
+  <section class="room room-team" id="teamRoom" data-room="team">
+    <div class="room-scene" aria-hidden="true"></div>
+    <div class="room-architecture" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="room-caption"><span>III</span><small>AGENTLƏR QALEREYASI</small></div>
+    <section class="org-chart reveal" id="orgChart">
+    <article class="agent-card chief" data-role="ceo"><span class="agent-emoji">CE</span><span>CEO<small>Orkestrasiya</small></span><i class="agent-dot"></i></article>
+    <div class="dept-group" data-dept="creative">
+      <span class="dept-label">Yaradıcı departament</span>
+      <div class="dept-cards">
+        <article class="agent-card" data-role="strategist"><span class="agent-emoji">ST</span><span>Strateq</span><i class="agent-dot"></i></article>
+        <article class="agent-card" data-role="copywriter"><span class="agent-emoji">CW</span><span>Kopirayter</span><i class="agent-dot"></i></article>
+        <article class="agent-card" data-role="designer"><span class="agent-emoji">DS</span><span>Dizayner</span><i class="agent-dot"></i></article>
+        <article class="agent-card" data-role="developer"><span class="agent-emoji">DV</span><span>Developer</span><i class="agent-dot"></i></article>
+      </div>
+    </div>
+    <div class="dept-group" data-dept="sales">
+      <span class="dept-label">Satış departamenti</span>
+      <div class="dept-cards">
+        <article class="agent-card" data-role="sales_strategist"><span class="agent-emoji">SS</span><span>Satış Strateqi</span><i class="agent-dot"></i></article>
+        <article class="agent-card" data-role="outreach_writer"><span class="agent-emoji">OW</span><span>Outreach</span><i class="agent-dot"></i></article>
+      </div>
+    </div>
+    <div class="dept-group" data-dept="marketing">
+      <span class="dept-label">Marketinq</span>
+      <div class="dept-cards">
+        <article class="agent-card" data-role="marketing"><span class="agent-emoji">MK</span><span>Marketinq</span><i class="agent-dot"></i></article>
+      </div>
+    </div>
+    <div class="dept-group" data-dept="analytics">
+      <span class="dept-label">Analitika</span>
+      <div class="dept-cards">
+        <article class="agent-card" data-role="analytics"><span class="agent-emoji">AN</span><span>Analitika</span><i class="agent-dot"></i></article>
+      </div>
+    </div>
+    <article class="agent-card chief" data-role="critic"><span class="agent-emoji">QA</span><span>Keyfiyyət<small>Nəzarət</small></span><i class="agent-dot"></i></article>
+    </section>
+    <a class="room-next" href="#operationsRoom"><span>İdarəetmə zalına keç</span><i>↓</i></a>
+  </section>
+
+  <section class="room room-operations" id="operationsRoom" data-room="operations">
+    <div class="room-scene" aria-hidden="true"></div>
+    <div class="room-architecture" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="room-caption"><span>IV</span><small>İDARƏETMƏ ZALI</small></div>
+    <section class="grid two-col reveal">
+    <article class="panel feed-panel">
+      <div class="panel-title"><div><span class="section-no">02 / PROSES</span><h2>Canlı şirkət lenti</h2></div><span class="live-chip ws-indicator" id="liveDot"><i></i> CANLI</span></div>
+      <div id="feedBody" class="feed-body"><p class="empty">Hələ heç bir layihə işə salınmayıb.</p></div>
+    </article>
+
+    <article class="panel board-panel">
+      <div class="panel-title"><div><span class="section-no">03 / İCRA</span><h2>Tapşırıq lövhəsi</h2></div></div>
+      <div class="task-board" id="taskBoard">
+        <div class="board-col" data-status="TODO"><h3>TODO</h3><div class="board-items"></div></div>
+        <div class="board-col" data-status="DOING"><h3>DOING</h3><div class="board-items"></div></div>
+        <div class="board-col" data-status="REVIEW"><h3>REVIEW</h3><div class="board-items"></div></div>
+        <div class="board-col" data-status="DONE"><h3>DONE</h3><div class="board-items"></div></div>
+      </div>
+    </article>
+    </section>
+  </section>
+
+  <section class="panel deliverable-panel" id="deliverablePanel" hidden>
+    <div class="panel-title">
+      <h2>Nəticə <span id="deliverableStatus" class="live-chip"><i></i>—</span></h2>
+      <div class="deliverable-actions">
+        <button id="approveBtn" class="btn btn-solid" type="button">✅ Təsdiqlə</button>
+        <button id="rejectBtn" class="btn btn-ghost" type="button">❌ Rədd et</button>
+        <button id="instagramBtn" class="btn btn-ghost" type="button" hidden>📸 Instagram-da paylaş</button>
+        <a id="exportReportBtn" class="btn btn-ghost" target="_blank" rel="noopener" hidden>📄 PDF hesabat</a>
+        <a id="exportZipBtn" class="btn btn-ghost" hidden>📦 ZIP endir</a>
+      </div>
+    </div>
+
+    {# Instagram hesabı qoşulmayan workspace-lərdə "Paylaş" düyməsinin yeri — düymə əvəzinə
+       paket təklifi. Düyməni göstərmək mənasız olardı: müştərinin hesabı bağlı deyil. #}
+    <div class="addon-offer" id="instagramUpsell" hidden>
+      <span class="addon-icon">📸</span>
+      <div class="addon-copy">
+        <b>Instagram-a avtomatik paylaşım — əlavə paket</b>
+        <p>Post hazırdır. İstəyirsinizsə, təsdiqlədiyiniz kontent birbaşa öz Instagram
+           hesabınıza dərc olunsun — əl ilə köçürmək lazım gəlmir. Hesab qoşulması və
+           paylaşım kvotası ayrıca paketə daxildir.</p>
+      </div>
+      <a class="btn btn-solid addon-cta" href="/pricing#instagram">Paket haqqında</a>
+    </div>
+    <div class="deliverable-frame-wrap" id="deliverableFrameWrap">
+      <iframe id="deliverableFrame" title="Deliverable preview"></iframe>
+    </div>
+    <div class="social-post-preview" id="socialPostPreview" hidden>
+      <div class="social-post-card">
+        <div class="social-post-head">
+          <span class="social-post-avatar">📷</span>
+          <span class="social-post-handle">the_agency</span>
+        </div>
+        <img id="socialPostImage" class="social-post-image" alt="Post şəkli">
+        <div class="social-post-caption" id="socialPostCaption"></div>
+      </div>
+    </div>
+
+    <div class="sales-kit" id="salesKit" hidden>
+      <h3 class="sales-kit-title">📈 Satış departamentinin materialları</h3>
+      <pre class="sales-kit-body" id="salesKitBody"></pre>
+    </div>
+
+  </div>
+  </section>
+
+{% endblock %}
+{% block scripts %}
+<script src="/static/agency.js?v=20260911-1"></script>
+{% endblock %}

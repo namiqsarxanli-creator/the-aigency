@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Token və xərc · The Aigency{% endblock %}
+{% block content %}
+<style>
+.usage{max-width:1480px;margin:auto;padding:120px 5vw 80px;color:#eee7dc}
+.usage .hero{display:flex;justify-content:space-between;align-items:end;gap:28px;margin-bottom:34px;flex-wrap:wrap}
+.usage .eyebrow{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:#b99a5b}
+.usage .hero h1{font:italic 52px/1.05 'Instrument Serif',Georgia,serif;margin:12px 0}
+.usage .hero p{max-width:650px;color:#9e978e;line-height:1.7}
+.usage .filter{display:flex;gap:8px}
+.usage .filter select{background:#100d0a;border:1px solid rgba(196,165,102,.25);color:#e9e0d1;padding:12px;outline:none}
+.usage .filter button{border:0;background:#b99a5b;color:#100d0a;padding:12px 17px;font-weight:700;cursor:pointer}
+.usage .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.usage .kpi,.usage .panel{background:rgba(255,255,255,.015);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:none;box-shadow:inset 0 1px 1px rgba(255,255,255,.08);position:relative;overflow:hidden}
+.panel::before{content:'';position:absolute;inset:0;border-radius:inherit;padding:1.2px;background:linear-gradient(180deg,rgba(255,255,255,.4) 0%,rgba(255,255,255,.12) 20%,rgba(255,255,255,0) 40%,rgba(255,255,255,0) 60%,rgba(255,255,255,.12) 80%,rgba(255,255,255,.4) 100%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.usage .kpi{padding:22px;min-height:112px}
+.usage .kpi small{color:#817b73;text-transform:uppercase;letter-spacing:.15em;font-size:9px}
+.usage .kpi strong{display:block;font:30px Georgia,serif;margin:17px 0 5px}
+.usage .kpi em{font-style:normal;color:#b99a5b;font-size:12px}
+.usage .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.usage .panel{padding:25px}
+.usage .panel h2{font:23px Georgia,serif;margin:0 0 8px}
+.usage .panel .hint{color:#8b847b;font-size:12px;margin:0 0 18px;line-height:1.55}
+.usage .row{display:grid;grid-template-columns:1.4fr .6fr .8fr .7fr;gap:10px;padding:13px 0;border-top:1px solid rgba(255,255,255,.08);font-size:13px;color:#aaa39a;align-items:center}
+.usage .row.head{font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:#6f6962;border-top:0}
+.usage .row strong{color:#eee7dc;font-weight:600}
+.usage .meter{height:4px;background:rgba(255,255,255,.08);margin-top:6px;overflow:hidden}
+.usage .meter i{display:block;height:100%;background:linear-gradient(90deg,#d4b36f,#6b522d)}
+.usage .fail{color:#e2a0a0}
+.usage .ok{color:#a8c98a}
+.usage .wide{grid-column:1/-1}
+.usage .signal{padding:14px;margin-bottom:9px;border-left:2px solid #b99a5b;background:rgba(185,154,91,.07);color:#c4bdb3;line-height:1.55;font-size:13px}
+.usage .empty{height:170px;display:grid;place-items:center;text-align:center;color:#777067;line-height:1.7}
+@media(max-width:950px){.usage .kpis{grid-template-columns:repeat(2,1fr)}.usage .grid{grid-template-columns:1fr}}
+@media(max-width:620px){.usage .hero{display:block}.usage .hero h1{font-size:39px}.usage .kpis{grid-template-columns:1fr}.usage .row{grid-template-columns:1.2fr .8fr}.usage .row span:nth-child(n+3){display:none}}
+</style>
+<main class="usage">
+  <header class="hero">
+    <div>
+      <div class="eyebrow">IX · Resurs zalı</div>
+      <h1>Token və xərc</h1>
+      <p>Hansı departament və hansı provayder nə qədər token sərf edir — pulsuz kvotalar dolanda
+         səbəbi təxmin etmək əvəzinə burada dəqiq görmək olur.</p>
+    </div>
+    <form class="filter" method="get">
+      <select name="days">
+        {% for option in [1, 7, 30, 90] %}
+        <option value="{{ option }}" {% if days == option %}selected{% endif %}>Son {{ option }} gün</option>
+        {% endfor %}
+      </select>
+      <button>Göstər</button>
+    </form>
+  </header>
+
+  {% if not report.has_data %}
+    <section class="panel">
+      <div class="empty">
+        Bu dövrdə hələ LLM sorğusu qeydə alınmayıb.<br>
+        Bir layihə işə salın — token statistikası avtomatik yığılacaq.
+      </div>
+    </section>
+  {% else %}
+    {% set success = report.total_calls - report.failed_calls %}
+    <section class="kpis">
+      <article class="kpi">
+        <small>Ümumi sorğu</small>
+        <strong>{{ "{:,}".format(report.total_calls) }}</strong>
+        <em class="ok">{{ "{:,}".format(success) }} uğurlu</em>
+      </article>
+      <article class="kpi">
+        <small>Ümumi token</small>
+        <strong>{{ "{:,}".format(report.total_tokens) }}</strong>
+        <em>prompt + cavab</em>
+      </article>
+      <article class="kpi">
+        <small>Uğursuz sorğu</small>
+        <strong class="{% if report.failed_calls %}fail{% endif %}">{{ report.failed_calls }}</strong>
+        <em>{{ (report.failed_calls / report.total_calls * 100)|round(1) }}% bütün sorğulardan</em>
+      </article>
+      <article class="kpi">
+        <small>Təxmini API xərci</small>
+        <strong>${{ '%.4f'|format(report.estimated_cost_usd) }}</strong>
+        <em>OpenAI tarifli modellər üzrə</em>
+      </article>
+    </section>
+
+    <section class="grid">
+      <article class="panel">
+        <h2>Provayder üzrə</h2>
+        <p class="hint">Uğursuzluq faizi yüksək olan provayder sıradan çıxıb — fallback zənciri onu keçir.</p>
+        <div class="row head"><span>Provayder</span><span>Sorğu</span><span>Token</span><span>Orta gecikmə</span></div>
+        {% for row in report.by_provider %}
+        <div class="row">
+          <span>
+            <strong>{{ row.label }}</strong>
+            <div class="meter"><i style="width:{{ (row.ok_calls / row.calls * 100)|round }}%"></i></div>
+          </span>
+          <span>{{ row.calls }} <em class="{% if row.ok_calls < row.calls %}fail{% else %}ok{% endif %}">({{ row.ok_calls }} ✓)</em></span>
+          <span>{{ "{:,}".format(row.total_tokens) }}</span>
+          <span>{{ row.avg_latency_ms }} ms</span>
+        </div>
+        {% endfor %}
+      </article>
+
+      <article class="panel">
+        <h2>Departament üzrə</h2>
+        <p class="hint">Ən çox token sərf edən rol yuxarıdadır — kvota darlığında ilk optimizasiya namizədi budur.</p>
+        <div class="row head"><span>Departament</span><span>Sorğu</span><span>Token</span><span>Orta gecikmə</span></div>
+        {% for row in report.by_role %}
+        <div class="row">
+          <span>
+            <strong>{{ row.label }}</strong>
+            <div class="meter"><i style="width:{{ (row.total_tokens / report.by_role[0].total_tokens * 100)|round if report.by_role[0].total_tokens else 0 }}%"></i></div>
+          </span>
+          <span>{{ row.calls }}</span>
+          <span>{{ "{:,}".format(row.total_tokens) }}</span>
+          <span>{{ row.avg_latency_ms }} ms</span>
+        </div>
+        {% endfor %}
+      </article>
+
+      {% if report.failures %}
+      <article class="panel wide">
+        <h2>Uğursuzluq səbəbləri</h2>
+        <p class="hint">Bunlar layihəni dayandırmır — sistem avtomatik növbəti provaydere keçir. Amma çoxalması keyfiyyətə təsir edir.</p>
+        {% for reason, count in report.failures.items() %}
+        <div class="signal"><strong>{{ count }}×</strong> — {{ reason }}</div>
+        {% endfor %}
+      </article>
+      {% endif %}
+    </section>
+  {% endif %}
+</main>
+{% endblock %}

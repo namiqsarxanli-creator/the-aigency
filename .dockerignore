@@ -1,0 +1,22 @@
+# Sirlər və verilənlər bazası image-ə DÜŞMƏMƏLİDİR.
+# NIYƏ (canlı tapıntı): `app/core.py` `load_dotenv(override=True)` işlədir — image-ə bişirilmiş
+# `.env` Docker-in `--env-file` ilə verdiyi DƏYƏRLƏRİ ÜSTÜNDƏN YAZIRDI. Nəticədə serverdə
+# `DATABASE_URL` köhnə qalıb, tətbiq mount edilmiş bazaya yox, konteynerin müvəqqəti qatındakı
+# `/app/agency.db`-ə yazırdı — hər `docker rm`-də yazılanlar itirdi.
+.env
+agency.db
+agency.db-*
+agency.db.bak*
+backups/
+corrupt-old/
+data/
+
+.venv/
+__pycache__/
+*.pyc
+.git/
+.idea/
+.claude/
+*.log
+node_modules/
+tests/

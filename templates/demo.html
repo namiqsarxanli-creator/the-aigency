@@ -1,0 +1,138 @@
+{% extends "base.html" %}{% block title %}Canlı demo — {{ current_workspace.name }}{% endblock %}{% block content %}
+<style>
+.dm{min-height:100svh;padding:120px clamp(20px,5vw,70px) 80px;background:#0c0907}
+.dm-head{max-width:1240px;margin:0 auto 30px}
+.dm-head span{font-size:8px;letter-spacing:.2em;color:#b49459}
+.dm-head h1{font:italic clamp(42px,5vw,68px)/.95 'Instrument Serif',var(--font-serif,Georgia,serif);margin:12px 0 10px;color:#efe3cc}
+.dm-head p{color:#8f8474;font-size:13px;line-height:1.7;max-width:64ch;margin:0}
+.dm-bar{max-width:1240px;margin:0 auto 26px;display:flex;gap:10px;flex-wrap:wrap}
+.dm-bar input{flex:1 1 420px;padding:15px 17px;background:#15100c;border:1px solid #3a2f23;color:#e7ddce;font:13px var(--font-sans,Arial,sans-serif)}
+.dm-bar button{padding:15px 26px;background:#d4b978;color:#171008;border:0;font-weight:700;cursor:pointer;font-size:13px}
+.dm-bar button[disabled]{opacity:.45;cursor:default}
+.dm-ex{max-width:1240px;margin:0 auto 26px;display:flex;gap:8px;flex-wrap:wrap}
+.dm-ex button{background:transparent;border:1px solid #3a2f23;color:#9a8f7d;font-size:10px;padding:7px 12px;cursor:pointer}
+.dm-ex button:hover{border-color:#d4b978;color:#e6d6b4}
+.dm-log{max-width:1240px;margin:0 auto 22px;font:11px/1.9 "IBM Plex Mono",monospace;color:#8d8474;min-height:28px}
+.dm-log b{color:#d4b978}
+.dm-grid{max-width:1240px;margin:auto;display:grid;grid-template-columns:340px 1fr;gap:18px;align-items:start}
+.dm-plan,.dm-out{background:rgba(255,255,255,.015);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:none;box-shadow:inset 0 1px 1px rgba(255,255,255,.08);padding:20px;position:relative;overflow:hidden}
+.dm-plan::before,.dm-out::before{content:'';position:absolute;inset:0;border-radius:inherit;padding:1.2px;background:linear-gradient(180deg,rgba(255,255,255,.4) 0%,rgba(255,255,255,.12) 20%,rgba(255,255,255,0) 40%,rgba(255,255,255,0) 60%,rgba(255,255,255,.12) 80%,rgba(255,255,255,.4) 100%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.dm-plan h2,.dm-out h2{font:400 18px var(--font-serif,Georgia,serif);color:#dbc99f;margin:0 0 14px}
+.dm-day{border-bottom:1px solid rgba(218,191,137,.09);padding:10px 0}
+.dm-day i{font-style:normal;font-size:7px;letter-spacing:.14em;color:#a98a54;text-transform:uppercase}
+.dm-day b{display:block;color:#d8caae;font-size:11px;margin:4px 0 3px;font-weight:500}
+.dm-day p{margin:0;font-size:10px;line-height:1.55;color:#8d8474}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.card{background:#100c09;border:1px solid rgba(218,191,137,.15);overflow:hidden;animation:pop .35s ease}
+@keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.card .vis{aspect-ratio:1;background:linear-gradient(145deg,#2d4138,#a8854c);background-size:cover;background-position:center;display:flex;align-items:flex-end;padding:10px}
+.card .vis span{font-size:7px;letter-spacing:.13em;text-transform:uppercase;color:#f4ead8;background:rgba(12,9,7,.62);padding:4px 7px}
+.card .body{padding:14px}
+.card .body i{font-style:normal;font-size:7px;letter-spacing:.14em;color:#a98a54}
+.card .body h3{font:400 15px/1.25 var(--font-serif,Georgia,serif);color:#e6d9bd;margin:6px 0 8px}
+.card .body p{font-size:10px;line-height:1.6;color:#8f8577;margin:0;max-height:88px;overflow:hidden}
+.card .need{margin:9px 0 0;padding:8px;border:1px solid #8a6a1f;color:#d2ad66;font-size:9px;line-height:1.5}
+.dm-empty{color:#6f675c;font-size:12px}
+@media(max-width:900px){.dm-grid{grid-template-columns:1fr}}
+</style>
+
+<section class="dm">
+  <header class="dm-head">
+    <span>CANLI DEMO</span>
+    <h1>Bir cümlə. Tam zəncir.</h1>
+    <p>Brif yazın — sistem kampaniya planını qurur, onu brendinizə uyğunlaşdırır, ilk günləri
+    materiala çevirir, hər biri üçün başlıq, caption və vizual yazır, sonra şəkli çəkir.
+    Hər addım baş verdikcə ekranda görünür.</p>
+  </header>
+
+  <div class="dm-bar">
+    <input id="brief" maxlength="400" placeholder="Məsələn: yeni serumun ön sifariş kampaniyası">
+    <button id="go">Zənciri işə sal →</button>
+  </div>
+  <div class="dm-ex">
+    <button data-ex="Barrier Restore Serum üçün ön sifariş kampaniyası">Ön sifariş</button>
+    <button data-ex="Həssas dəri sahibləri üçün maarifləndirmə kampaniyası">Maarifləndirmə</button>
+    <button data-ex="Payız kolleksiyasının tanıtımı və ilk müştəri rəyləri">Payız launch</button>
+  </div>
+
+  <p class="dm-log" id="log"></p>
+
+  <div class="dm-grid">
+    <aside class="dm-plan"><h2>Plan</h2><div id="plan" class="dm-empty">Hələ boşdur.</div></aside>
+    <main class="dm-out"><h2>Materiallar</h2><div id="cards" class="cards"></div>
+      <p id="outEmpty" class="dm-empty">Zəncir işə düşəndə kartlar bir-bir görünəcək.</p></main>
+  </div>
+</section>
+
+<script>
+(function () {
+  var input = document.getElementById('brief');
+  var go = document.getElementById('go');
+  var log = document.getElementById('log');
+  var plan = document.getElementById('plan');
+  var cards = document.getElementById('cards');
+  var outEmpty = document.getElementById('outEmpty');
+  var source = null;
+
+  document.querySelectorAll('.dm-ex button').forEach(function (b) {
+    b.addEventListener('click', function () { input.value = b.dataset.ex; input.focus(); });
+  });
+
+  function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+  function start() {
+    var brief = input.value.trim();
+    if (brief.length < 10) { log.innerHTML = 'Ən azı 10 simvol yazın.'; return; }
+    if (source) source.close();
+    cards.innerHTML = ''; plan.innerHTML = ''; plan.className = 'dm-empty';
+    outEmpty.style.display = 'block';
+    go.disabled = true; go.textContent = 'İşləyir…';
+    log.innerHTML = '<b>Başlanır…</b>';
+
+    source = new EventSource('/demo/stream?brief=' + encodeURIComponent(brief));
+    source.onmessage = function (e) {
+      var d = JSON.parse(e.data);
+      if (d.kind === 'step') { log.innerHTML = '<b>▸</b> ' + esc(d.text); }
+      else if (d.kind === 'campaign') {
+        log.innerHTML = '<b>✓</b> «' + esc(d.name) + '» — ' + d.days + ' gün';
+      }
+      else if (d.kind === 'plan') {
+        plan.className = '';
+        plan.innerHTML = d.days.map(function (x) {
+          return '<div class="dm-day"><i>Gün ' + x.n + ' · ' + esc(x.platform) + ' · ' + esc(x.format) +
+                 '</i><b>' + esc(x.theme) + '</b><p>' + esc(x.hook) + '</p></div>';
+        }).join('');
+      }
+      else if (d.kind === 'material') {
+        outEmpty.style.display = 'none';
+        var vis = d.image
+          ? '<div class="vis" style="background-image:url(\'' + d.image + '\')"><span>' + esc(d.image_source) + '</span></div>'
+          : '<div class="vis"><span>şəkil yoxdur</span></div>';
+        var need = (d.needs && d.needs.length)
+          ? '<p class="need">Məlumat lazımdır: ' + d.needs.map(esc).join(', ') + '</p>' : '';
+        var card = document.createElement('article');
+        card.className = 'card';
+        card.innerHTML = vis + '<div class="body"><i>Gün ' + d.day + ' · ' + esc(d.platform) +
+          ' · ' + esc(d.format) + '</i><h3>' + esc(d.headline || '(başlıq yazılmadı)') +
+          '</h3><p>' + esc(d.caption) + '</p>' + need + '</div>';
+        cards.appendChild(card);
+      }
+      else if (d.kind === 'done') {
+        log.innerHTML = '<b>✓ Hazırdır.</b> <a href="/campaigns?id=' + d.campaign_id + '" style="color:#d4b978">Kampaniyaya bax →</a>';
+        finish();
+      }
+      else if (d.kind === 'error') { log.innerHTML = '<b style="color:#cd8b7b">Xəta:</b> ' + esc(d.message); finish(); }
+    };
+    source.onerror = function () { finish(); };
+  }
+
+  function finish() {
+    if (source) { source.close(); source = null; }
+    go.disabled = false; go.textContent = 'Zənciri işə sal →';
+  }
+
+  go.addEventListener('click', start);
+  input.addEventListener('keydown', function (e) { if (e.key === 'Enter') start(); });
+})();
+</script>
+{% endblock %}
