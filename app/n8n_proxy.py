@@ -1,7 +1,7 @@
 """"Bir tunel, iki xidmət" — ngrok statik domenini n8n webhook-ları ilə paylaşır.
 
 NİYƏ LAZIMDIR (canlı tapıntı, 11 sentyabr):
-Pulsuz ngrok planında YALNIZ BİR statik domen var (`cursor-eleven-preteen.ngrok-free.dev`).
+Pulsuz ngrok planında YALNIZ BİR statik domen var (`.env`-dəki `PUBLIC_BASE_URL`).
 n8n-in Telegram trigger-i öz webhook-unu Telegram-da məhz bu domenlə qeydiyyatdan keçirib
 (`WEBHOOK_URL` konteyner dəyişənindəki dəyər). Amma Twilio səsli demo üçün həmin tunel
 8800 portuna (bu FastAPI tətbiqinə) yönəldilmişdi — nəticədə Telegram `/brief` mesajını
