@@ -5,6 +5,8 @@ write, design, build, sell and review the work, live on screen, with a human app
 
 🇦🇿 [Azərbaycan dilində](README.az.md)
 
+![Studio — the agency's home](docs/screenshots/01-studio.jpg)
+
 Give it a brief, for example *"launch campaign for an eco-friendly coffee brand"*:
 
 1. A **CEO agent** splits the brief into tasks.
@@ -66,6 +68,16 @@ Give it a brief, for example *"launch campaign for an eco-friendly coffee brand"
   - FastAPI web + **Celery** worker + beat + **PostgreSQL** + **Redis**, with Docker Compose
   - the app refuses to start with an unsafe production config
 - **Local mode:** SQLite + an embedded worker, with an online-backup script.
+
+## Screenshots
+
+| | |
+|---|---|
+| <img src="docs/screenshots/00-sign-in.jpg" alt="Workspace sign-in"><br><sub>Workspace sign-in</sub> | <img src="docs/screenshots/02-brief-room.jpg" alt="Brief room — one sentence starts the company"><br><sub>Brief room — one sentence starts the company</sub> |
+| <img src="docs/screenshots/03-brand-kit.jpg" alt="Brand Kit — brand memory every agent follows"><br><sub>Brand Kit — brand memory every agent follows</sub> | <img src="docs/screenshots/04-campaigns.jpg" alt="Campaigns — from idea to a phased plan"><br><sub>Campaigns — from idea to a phased plan</sub> |
+| <img src="docs/screenshots/05-content-calendar.jpg" alt="Content calendar — 74 scheduled assets"><br><sub>Content calendar — 74 scheduled assets</sub> | <img src="docs/screenshots/06-studio-plus.jpg" alt="Studio+ — one idea, four formats"><br><sub>Studio+ — one idea, four formats</sub> |
+| <img src="docs/screenshots/07-approvals.jpg" alt="Approvals — the human decision layer"><br><sub>Approvals — the human decision layer</sub> | <img src="docs/screenshots/08-sales-crm.jpg" alt="Sales CRM — global lead discovery"><br><sub>Sales CRM — global lead discovery</sub> |
+| <img src="docs/screenshots/09-control-room.jpg" alt="Control Room — lights-out factory"><br><sub>Control Room — lights-out factory</sub> | <img src="docs/screenshots/10-pricing.jpg" alt="Packages"><br><sub>Packages</sub> |
 
 ## Tests
 
