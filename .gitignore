@@ -24,3 +24,4 @@ node_modules/
 Thumbs.db
 n8n_workflows/
 session_out.txt
+PROJECT_STATE.md
